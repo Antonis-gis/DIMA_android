@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "656945745490",
+    "firebase_url": "https://dima-b17a1.firebaseio.com",
+    "project_id": "dima-b17a1",
+    "storage_bucket": "dima-b17a1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:656945745490:android:a6089c909b2a3456",
+        "android_client_info": {
+          "package_name": "com.example.elena.ourandroidapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "656945745490-3ggk6t704njpl1ngivdl1t50sh383of1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.elena.ourandroidapp",
+            "certificate_hash": "b77d1dc68ee7f2af59d5998646f14c2616ebef26"
+          }
+        },
+        {
+          "client_id": "656945745490-50iotj6hh4qrkulvm4nmkaruju85ft07.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4TG76c4KrcfMhJFcBbf2RAQBiT-KLwSg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "656945745490-50iotj6hh4qrkulvm4nmkaruju85ft07.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

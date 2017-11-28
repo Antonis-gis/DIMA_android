@@ -3,15 +3,19 @@ package com.example.elena.ourandroidapp.activities;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+
+import com.google.firebase.iid.FirebaseInstanceId;
 
 public class LaunchActivity extends AppCompatActivity {
-
+    private static final String TAG = "LaunchActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         //setContentView(R.layout.empty);
-
+        String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+        Log.d(TAG, "Refreshed token: " + refreshedToken);
 
         // determine where to go
         if(true) {

@@ -13,16 +13,23 @@ import android.widget.ListView;
 import com.example.elena.ourandroidapp.R;
 import com.example.elena.ourandroidapp.adapters.PollArrayAdapter;
 import com.example.elena.ourandroidapp.model.Poll;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
-
+    public static final Random RANDOM = new Random();
+    public static final String FCM_PROJECT_SENDER_ID = "656945745490";
+    public static final String FCM_SERVER_CONNECTION = "@gcm.googleapis.com";
+    public static final String BACKEND_ACTION_MESSAGE = "MESSAGE";
+    public static final String BACKEND_ACTION_ECHO = "ECHO";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_coordinator_layout);
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -31,9 +38,15 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action",
-                        Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                String  SENDER_ID="656945745490";
+                //String msgId = UUID.randomUUID().toString();;
+                FirebaseMessaging fm = FirebaseMessaging.getInstance();
+                fm.send(new RemoteMessage.Builder(SENDER_ID + "@gcm.googleapis.com")
+                        .setMessageId(Integer.toString(RANDOM.nextInt()))
+                        .addData("action", BACKEND_ACTION_ECHO)
+                        .addData("message","ping")
+                        .build());
+
             }
         });
 

@@ -32,7 +32,7 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
         DatabaseReference myRef = database.getReference("message");
 
         myRef.setValue("Hello, World!");
-        TokenService mTokenService = TokenService.getInstance();
-        mTokenService.writeTokenData("1234567890", token);
+        DatabaseService mDatabaseService = DatabaseService.getInstance();
+        mDatabaseService.writeTokenData("1234567890", token);
     }
 }

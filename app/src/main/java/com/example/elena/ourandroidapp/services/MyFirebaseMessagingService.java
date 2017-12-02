@@ -6,7 +6,9 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.EditText;
 
 import com.example.elena.ourandroidapp.R;
 import com.example.elena.ourandroidapp.activities.MainActivity;
@@ -19,6 +21,11 @@ import com.google.firebase.messaging.RemoteMessage;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "FCMMessagingService";
+    private LocalBroadcastManager broadcaster;
+    @Override
+    public void onCreate() {
+        broadcaster = LocalBroadcastManager.getInstance(this);
+    }
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -31,6 +38,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
             // In this case the XMPP Server sends a payload data
             String message = remoteMessage.getData().get("message");
+            Intent intent = new Intent("MyData");
+            intent.putExtra("message", remoteMessage.getData().get("message"));
+            broadcaster.sendBroadcast(intent);
             Log.d(TAG, "Message received: " + message);
 
             showBasicNotification(message);

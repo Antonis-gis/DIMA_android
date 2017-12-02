@@ -15,4 +15,5 @@
         completions."
     </string>
     <string name="title_activity_item">ItemActivity</string>
+    <string name="title_activity_choose_contacts">ChooseContactsActivity</string>
 </resources>

@@ -26,7 +26,7 @@ public class ItemActivity extends AppCompatActivity {
         setContentView(R.layout.activity_item);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        //getActionBar().setDisplayHomeAsUpEnabled(true);
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);

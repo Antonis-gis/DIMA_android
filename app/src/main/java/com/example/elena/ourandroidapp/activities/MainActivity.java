@@ -14,8 +14,10 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 
+import com.example.elena.ourandroidapp.ApplicationContextProvider;
 import com.example.elena.ourandroidapp.R;
 import com.example.elena.ourandroidapp.adapters.PollArrayAdapter;
+import com.example.elena.ourandroidapp.data.PollSQLiteRepository;
 import com.example.elena.ourandroidapp.model.Poll;
 import com.example.elena.ourandroidapp.services.DatabaseService;
 import com.example.elena.ourandroidapp.services.GlobalContainer;
@@ -134,6 +136,11 @@ public class MainActivity extends AppCompatActivity {
             String pollId = polls.get(i).getId();
             if(polls.get(i).getChanged()==1){
                 polls.get(i).setChanged(0);
+
+                GlobalContainer.getPolls().get(polls.get(i).getId()).setChanged(0);
+                //PollSQLiteRepository repository = new PollSQLiteRepository(ApplicationContextProvider.getContext());
+                //repository.deletePoll(polls.get(i).getId());
+                //repository.add(GlobalContainer.getPolls().get(polls.get(i).getId()));
                 pollsArrayAdapter.notifyDataSetChanged();
 
             }

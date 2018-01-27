@@ -280,7 +280,7 @@ public class DatabaseService {
                 ///This onDataChange will be run only once (coz ListenerForSingleValueEvent)
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     int type = dataSnapshot.child("type").getValue(Integer.class);
-                    if(type==0){
+                    if(type==1){
                         poll= dataSnapshot.getValue(Poll.class);
                     }else{
                         poll= dataSnapshot.getValue(PollNotAnonymous.class);

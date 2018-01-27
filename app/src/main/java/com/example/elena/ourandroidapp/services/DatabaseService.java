@@ -313,7 +313,7 @@ public class DatabaseService {
         for (Map.Entry<String, Contact> entry : contactsToCheck.entrySet()) {
             final Map.Entry<String, Contact> finalEntry = entry;
             String phone = finalEntry.getValue().getPhoneNumber();
-            if (phone.contains(".")||phone.contains("$")||phone.contains("[")||phone.contains("]")||phone.contains("#")||phone.contains("\\")) {
+            if (!(phone.contains(".")||phone.contains("$")||phone.contains("[")||phone.contains("]")||phone.contains("#")||phone.contains("\\"))) {
                 rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {

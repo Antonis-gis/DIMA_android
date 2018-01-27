@@ -6,44 +6,36 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Pair;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 
 import com.example.elena.ourandroidapp.R;
-import com.example.elena.ourandroidapp.model.Contact;
 import com.example.elena.ourandroidapp.model.Poll;
-import com.example.elena.ourandroidapp.services.GlobalContainer;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-import com.example.elena.ourandroidapp.adapters.ContactArrayAdapter;
 
-public class ChooseContactsActivity extends AppCompatActivity {
-    ListView contactsListView;
-    final List<Pair<Boolean, Contact>> contacts=new ArrayList<>(GlobalContainer.getContactsForAdapter());
+public class NewPollActivity extends AppCompatActivity {
     public static final Random RANDOM = new Random();
     public static final String BACKEND_ACTION_SUBSCRIBE = "SUBSCRIBE";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_choose_contacts);
+        setContentView(R.layout.activity_new_poll);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        Intent intent = getIntent();
-        final String id = intent.getStringExtra("pollId");
         final ArrayList<String> receipients = new ArrayList<>();
-        receipients.add("+393457891947");
-
+        //receipients.add("9876543210");
+        //receipients.add("1234567890");
+        Poll newPoll = new Poll();
+        final String newPollId = newPoll.getId();
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                /*
                 String  SENDER_ID="656945745490";
                 //String msgId = UUID.randomUUID().toString();;
                 FirebaseMessaging fm = FirebaseMessaging.getInstance();
@@ -53,35 +45,15 @@ public class ChooseContactsActivity extends AppCompatActivity {
                 fm.send(new RemoteMessage.Builder(SENDER_ID + "@gcm.googleapis.com")
                         .setMessageId(Integer.toString(RANDOM.nextInt()))
                         .addData("action", BACKEND_ACTION_SUBSCRIBE)
-                        .addData("poll_id", id)
+                        .addData("poll_id", newPollId)
                         .addData("recipient", serialized)
                         .build());
-                ///also here we should save poll to repository and to globalContainer (maybe it is not enough)
-                Intent intent = new Intent(ChooseContactsActivity.this, MainActivity.class);
+                        */
+                Intent intent = new Intent(NewPollActivity.this,ChooseContactsActivity.class);
+                intent.putExtra("pollId", "3");
                 startActivity(intent);
             }
         });
-
-        contactsListView = findViewById(R.id.contactsList);
-
-
-final ArrayList<String> choosenContacts= new ArrayList<>();
-        final ContactArrayAdapter contactsArrayAdapter = new ContactArrayAdapter(this, contacts);
-        contactsListView.setAdapter(contactsArrayAdapter);
-
-        contactsListView.
-                setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView,
-                                            View view, int i, long l) {
-
-                        String phoneNumber = contacts.get(i).second.getPhoneNumber();
-                        Boolean newBool = !contacts.get(i).first;
-                        contacts.set(i, new Pair(newBool, contacts.get(i).second));
-                    }
-                });
-
-
 
     }
 

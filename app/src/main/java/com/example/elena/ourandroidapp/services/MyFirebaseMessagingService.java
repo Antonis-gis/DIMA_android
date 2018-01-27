@@ -1,17 +1,14 @@
 package com.example.elena.ourandroidapp.services;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
-import android.widget.EditText;
 
 import com.example.elena.ourandroidapp.R;
 import com.example.elena.ourandroidapp.activities.MainActivity;
+import com.example.elena.ourandroidapp.model.Poll;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -30,7 +27,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-
+/*
         Log.d(TAG, "From: " + remoteMessage.getFrom());
 
         // Check if message contains a data payload.
@@ -51,6 +48,30 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getNotification() != null) {
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
         }
+        */
+        if (remoteMessage.getData().size() > 0) {
+            final String message = remoteMessage.getData().get("poll_id");
+            DatabaseService mPollService = DatabaseService.getInstance();
+            DatabaseService.Callback callback = new DatabaseService.Callback() {//we need somehow find right poll and update its view
+                @Override
+                public void onLoad(String poll_id) {
+
+                    Intent intent = new Intent("NewPollReceived");
+                    intent.putExtra("poll_id", message);
+                    broadcaster.sendBroadcast(intent);
+                }
+
+                @Override
+                public void onFailure() {
+
+                }
+            };
+
+            mPollService.retrievePollToGlobalContainer(message, callback);
+        }
+
+
+
 
     }
 

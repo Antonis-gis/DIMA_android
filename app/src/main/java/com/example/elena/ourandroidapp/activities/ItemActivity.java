@@ -10,6 +10,13 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.elena.ourandroidapp.R;
+import com.example.elena.ourandroidapp.model.Poll;
+import com.example.elena.ourandroidapp.services.DatabaseService;
+import com.example.elena.ourandroidapp.services.GlobalContainer;
+import com.google.firebase.database.DatabaseReference;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ItemActivity extends AppCompatActivity {
 
@@ -19,6 +26,8 @@ public class ItemActivity extends AppCompatActivity {
         setContentView(R.layout.activity_item);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -30,9 +39,34 @@ public class ItemActivity extends AppCompatActivity {
             }
         });
         Intent intent = getIntent();
-        String title = intent.getStringExtra("title");
-        TextView pollTextView = findViewById(R.id.textView);
-        pollTextView.setText(title);
-    }
+        String id = intent.getStringExtra("pollId");
+        DatabaseService mPollService = DatabaseService.getInstance();
+        DatabaseService.Callback callback = new DatabaseService.Callback() {
+            @Override
+            public void onLoad(String poll_id) {
 
-}
+                //here the update of the view in case of new vote should happen
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+        };
+
+        HashMap<String, Poll> polls = GlobalContainer.getPolls();
+        GlobalContainer.getPolls().get(id).setChanged(0);
+        Poll p = GlobalContainer.getPolls().get(id);
+
+
+        TextView pollTextView = findViewById(R.id.textView);
+        pollTextView.setText(p.getTitle());
+
+        DatabaseReference ref = mPollService.getRefWithListener(p, callback);
+            }
+        }
+
+
+
+
+

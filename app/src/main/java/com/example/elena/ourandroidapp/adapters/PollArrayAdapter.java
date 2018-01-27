@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.elena.ourandroidapp.R;
@@ -37,20 +38,26 @@ public class PollArrayAdapter extends ArrayAdapter<Poll> {
          PollViewHolder viewHolder = ( PollViewHolder) convertView.getTag();
 
         viewHolder.titleTV.setText(poll.getTitle());
-        viewHolder.directorTV.setText(poll.getQuestion());
+        if (poll.getChanged()==1) {
+            viewHolder.changedSign.setVisibility(View.VISIBLE);
+        } else{
+            viewHolder.changedSign.setVisibility(View.GONE);
+        }
+        // viewHolder.directorTV.setText(poll.getQuestion());
 
         return convertView;
     }
     static class PollViewHolder {
 
         TextView titleTV;
-        TextView directorTV;
+        ImageView changedSign;
 
         public  PollViewHolder(View view){
             titleTV = (TextView) view.
                     findViewById(R.id.pollTitleTextView);
-            directorTV = (TextView) view.
-                    findViewById(R.id.pollQuestionTextView);
+
+            changedSign = (ImageView) view.
+                    findViewById(R.id.changedPic);
         }
 
     }

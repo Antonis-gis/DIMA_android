@@ -312,32 +312,34 @@ public class DatabaseService {
         Set<Map.Entry<String,Contact>> set = contactsToCheck.entrySet();
         for (Map.Entry<String, Contact> entry : contactsToCheck.entrySet()) {
             final Map.Entry<String, Contact> finalEntry = entry;
-            rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot snapshot) {
-                    counter.add(1);
-                    if (snapshot.hasChild(finalEntry.getValue().getPhoneNumber())) {
-                        // run some code
-                        HashMap<String, Contact> contacts = GlobalContainer.getContacts();
-                        contacts.put(finalEntry.getKey(), finalEntry.getValue());
-                        PollSQLiteRepository repository = new PollSQLiteRepository(ApplicationContextProvider.getContext());
-                        repository.deleteContact(finalEntry.getKey());
-                        repository.addContact(finalEntry.getValue().getName(),finalEntry.getValue().getPhoneNumber());
+            String phone = finalEntry.getValue().getPhoneNumber();
+            if (phone.contains(".")||phone.contains("$")||phone.contains("[")||phone.contains("]")||phone.contains("#")||phone.contains("\\")) {
+                rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        counter.add(1);
+                        if (snapshot.hasChild(finalEntry.getValue().getPhoneNumber())) {
+                            // run some code
+                            HashMap<String, Contact> contacts = GlobalContainer.getContacts();
+                            contacts.put(finalEntry.getKey(), finalEntry.getValue());
+                            PollSQLiteRepository repository = new PollSQLiteRepository(ApplicationContextProvider.getContext());
+                            repository.deleteContact(finalEntry.getKey());
+                            repository.addContact(finalEntry.getValue().getName(), finalEntry.getValue().getPhoneNumber());
 
 
-
+                        }
+                        if (counter.size() == count) {
+                            callback.onLoad();
+                        }
                     }
-                    if(counter.size()==count)  {
-                        callback.onLoad();
+
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        callback.onFailure();
                     }
-                }
-
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    callback.onFailure();
-                }
-            });
+                });
+            }
         }
 
     }

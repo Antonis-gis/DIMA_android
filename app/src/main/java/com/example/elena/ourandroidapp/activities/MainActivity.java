@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String BACKEND_ACTION_SUBSCRIBE = "SUBSCRIBE";
 
     ListView pollsListView;
+    ArrayList<DatabaseReference> refs;
     final List<Poll> polls=new ArrayList<>(GlobalContainer.getPolls().values());
 
 
@@ -53,6 +54,29 @@ public class MainActivity extends AppCompatActivity {
 
 // Get the extras (if there are any)
         Bundle extras = intent.getExtras();
+        final PollArrayAdapter pollsArrayAdapter = new PollArrayAdapter(this, polls);
+
+        final DatabaseService.Callback callback = new DatabaseService.Callback() {//we need somehow find right poll and update its view
+            @Override
+            public void onLoad(String poll_id) {
+
+                for(Poll p:polls){
+                    if(p.getId().equals(poll_id)){
+                        int idx = polls.indexOf(p);
+                        p=GlobalContainer.getPolls().get(poll_id);
+                        polls.set(idx, p);
+
+                    }
+                }
+                //here the notifications on poll items should be set
+                pollsArrayAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+        };
         if (extras != null) {
             if (extras.containsKey("isNewLogin")) {
                 boolean isNew = extras.getBoolean("isNewLogin", false);
@@ -61,6 +85,13 @@ public class MainActivity extends AppCompatActivity {
                     public void onLoad(String poll_id) {
                         for (Poll p : GlobalContainer.getPolls().values()) //if we are here then before polls were empty, initialized woth empty gobalContainer
                             polls.add(p);
+                        DatabaseService mInitService = DatabaseService.getInstance();
+                        refs =new ArrayList<>();
+                        for (Poll p : GlobalContainer.getPolls().values()){
+                            DatabaseReference ref = mInitService.getRefWithListener(p, callback);
+                            refs.add(ref);
+                        }
+                        GlobalContainer.emptyRefs();
 
                         ((BaseAdapter) pollsListView.getAdapter()).notifyDataSetChanged();
                     }
@@ -75,6 +106,13 @@ public class MainActivity extends AppCompatActivity {
                 mIdsService.retrieveListOfUserPolls(mPhoneNumber, idsCallback);
 
                 // TODO: Do something with the value of isNew.
+            }
+        } else{
+            refs =new ArrayList<>();
+            DatabaseService mInitService = DatabaseService.getInstance();
+            for (Poll p : GlobalContainer.getPolls().values()){
+                DatabaseReference ref = mInitService.getRefWithListener(p, callback);
+                refs.add(ref);
             }
         }
 
@@ -119,36 +157,12 @@ public class MainActivity extends AppCompatActivity {
         //1. onChange from firebase database when new vote is added
         //2. message from server that new poll is added (see my firebase messaging service)
         DatabaseService mPollService = DatabaseService.getInstance();
-        final PollArrayAdapter pollsArrayAdapter = new PollArrayAdapter(this, polls);
-        DatabaseService.Callback callback = new DatabaseService.Callback() {//we need somehow find right poll and update its view
-            @Override
-            public void onLoad(String poll_id) {
 
-                for(Poll p:polls){
-                    if(p.getId().equals(poll_id)){
-                        int idx = polls.indexOf(p);
-                        p=GlobalContainer.getPolls().get(poll_id);
-                        polls.set(idx, p);
 
-                    }
-                }
-                //here the notifications on poll items should be set
-                pollsArrayAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onFailure() {
-
-            }
-        };
 
 
         //ArrayList<DatabaseReference> dRefs = mPollService.getRefsWithSharedCallbackOnAllLoaded(callback); //this is just to save references with attached eventListeners
-        ArrayList<DatabaseReference> refs =new ArrayList<>();
-        for (Poll p : GlobalContainer.getPolls().values()){
-        DatabaseReference ref = mPollService.getRefWithListener(p, callback);
-        refs.add(ref);
-        }
+
 
         //mPollService.linkAllRefsForGlobalContainer(callback);//this is for globalContainer updates
 

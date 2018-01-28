@@ -175,7 +175,72 @@ public class DatabaseService {
                 }
 
             }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onFailure();
+            }
 
+        };
+
+        pollRef.addValueEventListener(postListener);
+        return pollRef;
+
+    }
+
+
+            public DatabaseReference getRefWithSingleEventListener(Poll poll, final Callback callback) {
+                String query = "polls/" + poll.getId();
+                DatabaseReference pollRef = FirebaseDatabase.getInstance().getReference(query);
+                ValueEventListener postListener = new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        // Get Post object and use the values to update the UI
+                        String id = dataSnapshot.child("id").getValue(String.class);
+                        if(id==null){
+                            //what will we do if pol is deleted from database - actually it shouldnt happen
+                        } else {
+                            HashMap<String, Poll> polls = GlobalContainer.getPolls();
+                            Poll newPoll= new Poll();
+                            Poll poll = polls.get(id);
+                            if (poll instanceof PollNotAnonymous) {
+                                newPoll = dataSnapshot.getValue(PollNotAnonymous.class);
+                                //this cycle is not approptiate solution but it is here because I couldnt find other way to have optionsnotAnanonous in not anonumous polls
+                                for(Poll.Option opt: newPoll.getOptions().values()){
+                                    PollNotAnonymous.OptionNotAnonymous optna = dataSnapshot.child("options").child(opt.getText()).getValue(PollNotAnonymous.OptionNotAnonymous.class);
+                                    newPoll.getOptions().put(opt.getText(), optna);
+                                }
+                            } else {
+                                newPoll = dataSnapshot.getValue(Poll.class);
+                            }
+                            //since this method is used when we want to keep refs in activity(to call activity specific callbacks),
+                            // poll's ref field is not set
+                            boolean newVote=false;
+                            //here we assume that options and their number cant change
+                            //we check if it is new vote what caused onChange
+
+                            for (Poll.Option o: poll.getOptions().values()){
+                                Poll.Option no = newPoll.getOptions().get(o.getText());
+                                if(no==null){break;} //actually it shouldnt happen, but while testing it is better to work it out. It means option was deleted
+                                if(!(no.getVotesCount()==o.getVotesCount())){
+                                    newVote=true;
+                                    break;
+                                }
+                            }
+
+                            polls.put(poll.getId(), newPoll);
+                            PollSQLiteRepository repository = new PollSQLiteRepository(ApplicationContextProvider.getContext());
+                            repository.deletePoll(poll.getId());
+                            repository.add(newPoll);
+                            GlobalContainer.getPolls().put(poll.getId(), newPoll);//this is so we want call onDataChange twice
+
+                            if(newVote){
+                                newPoll.setChanged(1);//what if we are in itemactivity?
+                                callback.onLoad(newPoll.getId());
+                            }
+
+                        }
+
+                    }
 
 
             @Override
@@ -185,7 +250,7 @@ public class DatabaseService {
 
         };
 
-        pollRef.addValueEventListener(postListener);
+        pollRef.addListenerForSingleValueEvent(postListener);
         return pollRef;
 
     }
@@ -305,7 +370,7 @@ public class DatabaseService {
                     public void onLoad(String poll_id) {
                     counter.add(1);
                     if (counter.size()==size){
-                        callback.onLoad("");
+                        callback.onLoad(""); //this we call after we retrieve to globalContainer all polls
                     }
                     }
 
@@ -349,7 +414,7 @@ public class DatabaseService {
                     //HashMap<String, Poll> polls = GlobalContainer.getPolls();
                     GlobalContainer.getPolls().put(poll.getId(), poll);
 
-                    DatabaseReference ref =getRefWithListener(poll, callback);
+                    DatabaseReference ref =getRefWithSingleEventListener(poll, callback);
                     GlobalContainer.getRefs().put(poll.getId(), ref); //this callback should update poll in GlobalContainer on change
                     callback.onLoad(poll.getId());
                 }

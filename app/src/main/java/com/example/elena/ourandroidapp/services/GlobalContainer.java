@@ -30,6 +30,9 @@ public class GlobalContainer {
     public static synchronized void emptyPolls(){
         polls=new HashMap<>();
     }
+    public static synchronized void emptyRefs(){
+        pollRefs=new HashMap<>();
+    }
 
     public static synchronized HashMap<String, Contact> getContacts(){
         if (contacts == null)

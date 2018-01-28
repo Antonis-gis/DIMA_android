@@ -1,6 +1,8 @@
 package com.example.elena.ourandroidapp.services;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.telephony.TelephonyManager;
 
 import com.example.elena.ourandroidapp.ApplicationContextProvider;
 import com.example.elena.ourandroidapp.data.PollSQLiteRepository;
@@ -265,9 +267,9 @@ public class DatabaseService {
                 }
                 if (p instanceof PollNotAnonymous.OptionNotAnonymous) {
                     Context mAppContext = ApplicationContextProvider.getContext();
-                    //TelephonyManager tMgr = (TelephonyManager) mAppContext.getSystemService(Context.TELEPHONY_SERVICE);
-                    //@SuppressLint("MissingPermission") String mPhoneNumber = tMgr.getLine1Number();
-                    ((PollNotAnonymous.OptionNotAnonymous) p).addVoted("65322");
+                    FirebaseAuth auth = FirebaseAuth.getInstance();
+                    String mPhoneNumber = auth.getCurrentUser().getPhoneNumber();
+                    ((PollNotAnonymous.OptionNotAnonymous) p).addVoted(mPhoneNumber);
                 } else{
                     p.incrementVotesCount();
                 }

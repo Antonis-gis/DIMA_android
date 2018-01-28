@@ -59,7 +59,13 @@
         <activity
             android:name=".activities.ChooseContactsActivity"
             android:label="@string/title_activity_choose_contacts"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".activities.NewPollActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.NewPollActivity" />
+        </activity>
+
         <activity
             android:name=".activities.TestActivity"
             android:label="@string/title_activity_test"

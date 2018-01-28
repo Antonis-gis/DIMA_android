@@ -18,6 +18,7 @@ import com.example.elena.ourandroidapp.ApplicationContextProvider;
 import com.example.elena.ourandroidapp.R;
 import com.example.elena.ourandroidapp.adapters.PollArrayAdapter;
 import com.example.elena.ourandroidapp.data.PollSQLiteRepository;
+import com.example.elena.ourandroidapp.model.Binding;
 import com.example.elena.ourandroidapp.model.Poll;
 import com.example.elena.ourandroidapp.services.DatabaseService;
 import com.example.elena.ourandroidapp.services.GlobalContainer;
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String BACKEND_ACTION_SUBSCRIBE = "SUBSCRIBE";
 
     ListView pollsListView;
-    ArrayList<DatabaseReference> refs;
+    ArrayList<Binding> bindings=new ArrayList<>();
     final List<Poll> polls=new ArrayList<>(GlobalContainer.getPolls().values());
 
 
@@ -86,10 +87,9 @@ public class MainActivity extends AppCompatActivity {
                         for (Poll p : GlobalContainer.getPolls().values()) //if we are here then before polls were empty, initialized woth empty gobalContainer
                             polls.add(p);
                         DatabaseService mInitService = DatabaseService.getInstance();
-                        refs =new ArrayList<>();
                         for (Poll p : GlobalContainer.getPolls().values()){
-                            DatabaseReference ref = mInitService.getRefWithListener(p, callback);
-                            refs.add(ref);
+                            Binding b = mInitService.getRefWithListener(p, callback);
+                            bindings.add(b);
                         }
                         GlobalContainer.emptyRefs();
 
@@ -108,11 +108,11 @@ public class MainActivity extends AppCompatActivity {
                 // TODO: Do something with the value of isNew.
             }
         } else{
-            refs =new ArrayList<>();
+            clearBindings();
             DatabaseService mInitService = DatabaseService.getInstance();
             for (Poll p : GlobalContainer.getPolls().values()){
-                DatabaseReference ref = mInitService.getRefWithListener(p, callback);
-                refs.add(ref);
+                Binding b = mInitService.getRefWithListener(p, callback);
+                bindings.add(b);
             }
         }
 
@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
 */
                 //PollSQLiteRepository repository = new PollSQLiteRepository(ApplicationContextProvider.getContext());
                 //repository.deletePoll("6");
-
+                clearBindings();
                 Intent intent = new Intent(MainActivity.this, NewPollActivity.class);
                 startActivity(intent);
 
@@ -190,12 +190,20 @@ public class MainActivity extends AppCompatActivity {
                 pollsArrayAdapter.notifyDataSetChanged();
 
             }
+            clearBindings();
             Intent intent = new Intent(MainActivity.this, ItemActivity.class);
             intent.putExtra("pollId", pollId);
             startActivity(intent);
 
             }
         });
+    }
+
+    protected void clearBindings(){
+        for(Binding b : bindings){
+            b.getRef().removeEventListener(b.getListener());
+        }
+        bindings.clear();
     }
     @Override
     protected void onStart() {

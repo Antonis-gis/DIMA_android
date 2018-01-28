@@ -6,6 +6,7 @@ import android.telephony.TelephonyManager;
 
 import com.example.elena.ourandroidapp.ApplicationContextProvider;
 import com.example.elena.ourandroidapp.data.PollSQLiteRepository;
+import com.example.elena.ourandroidapp.model.Binding;
 import com.example.elena.ourandroidapp.model.Contact;
 import com.example.elena.ourandroidapp.model.Poll;
 import com.example.elena.ourandroidapp.model.PollNotAnonymous;
@@ -122,7 +123,7 @@ public class DatabaseService {
 
 */
 
-    public DatabaseReference getRefWithListener(Poll poll, final Callback callback) {
+    public Binding getRefWithListener(Poll poll, final Callback callback) {
         String query = "polls/" + poll.getId();
         DatabaseReference pollRef = FirebaseDatabase.getInstance().getReference(query);
         ValueEventListener postListener = new ValueEventListener() {
@@ -183,7 +184,7 @@ public class DatabaseService {
         };
 
         pollRef.addValueEventListener(postListener);
-        return pollRef;
+        return new Binding(pollRef, postListener);
 
     }
 
@@ -255,13 +256,13 @@ public class DatabaseService {
 
     }
 
-    public ArrayList<DatabaseReference> getRefsWithSharedCallbackOnAllLoaded(final Callback callback){
+    public ArrayList<Binding> getRefsWithSharedCallbackOnAllLoaded(final Callback callback){
         final ArrayList<Integer> counter = new ArrayList<>();
         final int count= GlobalContainer.getPolls().size();
-        final ArrayList<DatabaseReference> dRefs = new ArrayList<>();
+        final ArrayList<Binding> dRefs = new ArrayList<>();
 
         for(Poll poll : GlobalContainer.getPolls().values()){
-            DatabaseReference ref =getRefWithListener(poll, new Callback(){
+            Binding b =getRefWithListener(poll, new Callback(){
                 public void onLoad(String poll_id){
                     counter.add(1);
                     if(counter.size()==count){
@@ -272,20 +273,21 @@ public class DatabaseService {
                     callback.onFailure();
                 }
             });
-            dRefs.add(ref);
+            dRefs.add(b);
             }
             return dRefs;
         }
-
+/*
     public void linkAllRefsForGlobalContainer(final Callback callback){
         final ArrayList<Integer> counter = new ArrayList<>();
         final int count= GlobalContainer.getPolls().size();
 
         for(Poll poll : GlobalContainer.getPolls().values()){
-            DatabaseReference ref =getRefWithListener(poll, callback);
-            GlobalContainer.getRefs().put(poll.getId(), ref);
+            Binding b =getRefWithListener(poll, callback);
+            GlobalContainer.getRefs().put(poll.getId(), b);
                 }
     }
+    */
 /*
     public void updatePollsWithFirebaseChanges(final Callback callback){
         final ArrayList<Integer> counter = new ArrayList<>();

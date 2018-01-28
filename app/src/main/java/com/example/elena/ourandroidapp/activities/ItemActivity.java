@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.elena.ourandroidapp.R;
+import com.example.elena.ourandroidapp.model.Binding;
 import com.example.elena.ourandroidapp.model.Poll;
 import com.example.elena.ourandroidapp.services.DatabaseService;
 import com.example.elena.ourandroidapp.services.GlobalContainer;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ItemActivity extends AppCompatActivity {
+    Binding b;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +67,7 @@ public class ItemActivity extends AppCompatActivity {
         TextView pollTextView = findViewById(R.id.textView);
         pollTextView.setText(GlobalContainer.getPolls().get(id).getTitle());
 
-        DatabaseReference ref = mPollService.getRefWithListener(GlobalContainer.getPolls().get(id), callback);
+        b = mPollService.getRefWithListener(GlobalContainer.getPolls().get(id), callback);
             }
 
     @Override
@@ -73,6 +75,7 @@ public class ItemActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
+                b.getRef().removeEventListener(b.getListener());
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
         }

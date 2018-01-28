@@ -4,6 +4,7 @@ import android.util.Pair;
 
 import com.example.elena.ourandroidapp.ApplicationContextProvider;
 import com.example.elena.ourandroidapp.data.PollSQLiteRepository;
+import com.example.elena.ourandroidapp.model.Binding;
 import com.example.elena.ourandroidapp.model.Contact;
 import com.example.elena.ourandroidapp.model.Poll;
 import com.google.firebase.database.DatabaseReference;
@@ -55,14 +56,14 @@ public class GlobalContainer {
 
     public static synchronized HashMap<String, DatabaseReference> getRefs(){
         if (pollRefs == null)
-            pollRefs = new HashMap<String, DatabaseReference>();
+            pollRefs = new HashMap<>();
 
         return pollRefs;
     }
     private GlobalContainer() {
         polls = repository.returnPolls();
         contacts = repository.returnContacts();
-        pollRefs = new HashMap<String, DatabaseReference>();
+        pollRefs = new HashMap<>();
     }
     public static synchronized void updatePolls(HashMap<String, Poll> newpolls){
             polls = newpolls;

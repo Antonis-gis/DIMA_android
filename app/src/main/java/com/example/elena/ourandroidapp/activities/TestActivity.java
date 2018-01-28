@@ -49,7 +49,7 @@ public class TestActivity extends AppCompatActivity {
 
             }
         };
-        ArrayList<DatabaseReference> dRefs = mPollService.getRefsWithSharedCallbackOnAllLoaded(callback);
+        //ArrayList<DatabaseReference> dRefs = mPollService.getRefsWithSharedCallbackOnAllLoaded(callback);
 
 
 

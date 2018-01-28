@@ -66,6 +66,7 @@ public class PollSQLiteRepository {
         poll_values.put(PollEntry.POLL_NAME_CLMN, poll.getTitle());
         poll_values.put(PollEntry.POLL_QUESTION_CLMN, poll.getQuestion());
         poll_values.put(PollEntry.POLL_CHANGED_CLMN, poll.getChanged());
+        poll_values.put(PollEntry.POLL_ALREADY_VOTED_CLMN, poll.checkIfVoted());
         if (poll instanceof PollNotAnonymous) {
             poll_values.put(PollEntry.POLL_ANON_CLMN, 0);
         } else {poll_values.put(PollEntry.POLL_ANON_CLMN, 1);}
@@ -244,6 +245,9 @@ public class PollSQLiteRepository {
             } else {p = new PollNotAnonymous(pc.getName(), pc.getQuestion(), pc.getId());}
             OptionCursor oc = findOptions(pc.getId());
             p.setChanged(pc.getIfChanged());
+            if(pc.getIfAlreadyVoted()==1){
+                p.setVoted();
+            }
             while (oc.moveToNext()) {
                 Option o;
                 if(anon==1){

@@ -66,6 +66,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                 }
             };
+            mPollService.addPollIdToUsersPollsIdList(message);
 
             mPollService.retrievePollToGlobalContainer(message, callback);
         }

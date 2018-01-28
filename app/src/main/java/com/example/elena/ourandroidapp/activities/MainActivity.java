@@ -21,6 +21,7 @@ import com.example.elena.ourandroidapp.data.PollSQLiteRepository;
 import com.example.elena.ourandroidapp.model.Poll;
 import com.example.elena.ourandroidapp.services.DatabaseService;
 import com.example.elena.ourandroidapp.services.GlobalContainer;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
@@ -47,6 +48,37 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Polls");
         setSupportActionBar(toolbar);
+
+        Intent intent = getIntent();
+
+// Get the extras (if there are any)
+        Bundle extras = intent.getExtras();
+        if (extras != null) {
+            if (extras.containsKey("isNewLogin")) {
+                boolean isNew = extras.getBoolean("isNewLogin", false);
+                DatabaseService mIdsService = DatabaseService.getInstance();
+                DatabaseService.Callback idsCallback = new DatabaseService.Callback() {
+                    public void onLoad(String poll_id) {
+                        for (Poll p : GlobalContainer.getPolls().values()) //if we are here then before polls were empty, initialized woth empty gobalContainer
+                            polls.add(p);
+
+                        ((BaseAdapter) pollsListView.getAdapter()).notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onFailure() {
+
+                    }
+                };
+                FirebaseAuth auth = FirebaseAuth.getInstance();
+                String mPhoneNumber = auth.getCurrentUser().getPhoneNumber();
+                mIdsService.retrieveListOfUserPolls(mPhoneNumber, idsCallback);
+
+                // TODO: Do something with the value of isNew.
+            }
+        }
+
+
         final ArrayList<String> receipients = new ArrayList<>();
         receipients.add("9876543210");
         receipients.add("1234567890");

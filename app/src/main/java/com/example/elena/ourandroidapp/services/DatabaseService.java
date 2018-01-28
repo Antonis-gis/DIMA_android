@@ -7,10 +7,12 @@ import com.example.elena.ourandroidapp.data.PollSQLiteRepository;
 import com.example.elena.ourandroidapp.model.Contact;
 import com.example.elena.ourandroidapp.model.Poll;
 import com.example.elena.ourandroidapp.model.PollNotAnonymous;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.Transaction;
@@ -43,14 +45,26 @@ public class DatabaseService {
     }
 
     public void writeTokenData(String userId, String token) {
-        mDatabase.child("users").child(userId).setValue(token);
+        mDatabase.child("users").child(userId).child("token").setValue(token);
 
     }
+
+
+
+    public void addPollIdToUsersPollsIdList(String poll_id) {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        String mPhoneNumber = auth.getCurrentUser().getPhoneNumber();
+        DatabaseReference newRequestRef = mDatabase.child("users").child(mPhoneNumber).child("poll_ids").child(poll_id);
+        newRequestRef.setValue(0);
+    }
+
+
 
     public void writeNewPoll(Poll poll) {
 
 
         mDatabase.child("polls").child(poll.getId()).setValue(poll);
+        addPollIdToUsersPollsIdList(poll.getId());
         //com.google.firebase.database.DatabaseException: Found a conflicting setters with name: setWallpaper (conflicts with setWallpaper defined on android.content.ContextWrapper)
         //means somehow not coherent structure of that you write and what firebase database expects.
         //If incountered remove items like the oes you want to load from firebase database
@@ -228,6 +242,10 @@ public class DatabaseService {
 
 
     public void sendVote(String pollId, Poll.Option option) {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        String mPhoneNumber = auth.getCurrentUser().getPhoneNumber();
+        mDatabase.child("users").child(mPhoneNumber).child("poll_ids").child(pollId).setValue(1);
+        GlobalContainer.getPolls().get(pollId).setVoted();
         final Poll.Option fOption = option;
         String refPath = "polls/" + pollId + "/options/" + option.getText();
         Query query = mDatabase.child("polls").child(pollId).child("options").child(option.getText());
@@ -269,11 +287,52 @@ public class DatabaseService {
 
     }
 
+    public void retrieveListOfUserPolls(String mPhoneNumber, final Callback callback){
+        //final ArrayList<String> ids=new ArrayList<>();
+        GlobalContainer.emptyPolls();
+        final GenericTypeIndicator<HashMap<String, Integer>> t = new GenericTypeIndicator<HashMap<String, Integer>>(){};
+        DatabaseReference ref = mDatabase.child("users").child(mPhoneNumber).child("poll_ids");
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            ///This onDataChange will be run only once (coz ListenerForSingleValueEvent)
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                HashMap<String, Integer> temp_ids = dataSnapshot.getValue(t);
+                final Integer size = temp_ids.size();
+                final ArrayList<Integer> counter = new ArrayList<>();
+                DatabaseService.Callback accCallback = new DatabaseService.Callback() {
+                    public void onLoad(String poll_id) {
+                    counter.add(1);
+                    if (counter.size()==size){
+                        callback.onLoad("");
+                    }
+                    }
 
+                    @Override
+                    public void onFailure() {
+
+                    }
+                };
+
+                for (Map.Entry<String, Integer> entry : temp_ids.entrySet())
+
+                {
+                    //ids.add(str);
+                    retrievePollToGlobalContainer(entry.getKey(), accCallback);
+                }
+
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+
+        });
+
+    }
 
     public void retrievePollToGlobalContainer(String poll_id, final Callback callback){ ///this is to get new Poll from Database (when we receive message that we became participant of new poll)
-
+        //addPollIdToUsersPollsIdList(poll_id);
         DatabaseReference ref = mDatabase.child("polls");
+        DatabaseReference ref2 = mDatabase.child("polls").child(poll_id);
             ref.child(poll_id).addListenerForSingleValueEvent(new ValueEventListener() {
                 Poll poll;
                 @Override
@@ -285,8 +344,8 @@ public class DatabaseService {
                     }else{
                         poll= dataSnapshot.getValue(PollNotAnonymous.class);
                     }
-                    HashMap<String, Poll> polls = GlobalContainer.getPolls();
-                    polls.put(poll.getId(), poll);
+                    //HashMap<String, Poll> polls = GlobalContainer.getPolls();
+                    GlobalContainer.getPolls().put(poll.getId(), poll);
 
                     DatabaseReference ref =getRefWithListener(poll, callback);
                     GlobalContainer.getRefs().put(poll.getId(), ref); //this callback should update poll in GlobalContainer on change
@@ -299,6 +358,9 @@ public class DatabaseService {
                 });
 
     }
+
+
+
 
     public DatabaseReference getReference(String query){
         DatabaseReference rootRef = mDatabase.child("users");
@@ -344,7 +406,9 @@ public class DatabaseService {
 
     }
 
-    public interface Callback {
+
+
+public interface Callback {
 
         void onLoad(String poll_id);
         void onFailure();

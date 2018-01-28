@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.iid.FirebaseInstanceId;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -71,9 +72,6 @@ public class LoginActivity extends AppCompatActivity {
                 DatabaseService mTokenService = DatabaseService.getInstance();
                 String refreshedToken = FirebaseInstanceId.getInstance().getToken();
                 mTokenService.writeTokenData(mPhoneNumber,refreshedToken);
-//since it is the first time the newly registered user comes into app we have to search for the phones in this contact list
-// which are registered as our users
-// we put these contacts into GlobalContainer contacts HashMap
                 DatabaseService mCheckService = DatabaseService.getInstance();
                 HashMap<String, Contact> contactsToCheck=new HashMap<>();
                 Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,null,null, null);
@@ -90,12 +88,10 @@ public class LoginActivity extends AppCompatActivity {
                     contactsToCheck.put(name, c);
 
                 }
-                DatabaseReference rootRef = mCheckService.getReference("users");
-                DatabaseService.ContactsCallback callback = new DatabaseService.ContactsCallback() {//we need somehow find right poll and update its view
-                    @Override
+                DatabaseService.ContactsCallback callback = new DatabaseService.ContactsCallback() {
                     public void onLoad() {
 
-                        }
+                    }
 
                     @Override
                     public void onFailure() {
@@ -104,10 +100,33 @@ public class LoginActivity extends AppCompatActivity {
                 };
                 mCheckService.getTheOnesInDatabase(contactsToCheck, new DatabaseService.DefaultContactsCallback());
                 phones.close();
+                DatabaseService mIdsService = DatabaseService.getInstance();
+                DatabaseService.Callback idsCallback = new DatabaseService.Callback() {
+                    public void onLoad(String poll_id) {
 
-                startActivity(new Intent(LoginActivity.this,MainActivity.class));
+
+
+
+
+
+                    }
+
+                    @Override
+                    public void onFailure() {
+
+                    }
+                };
+                //mIdsService.retrieveListOfUserPolls(mPhoneNumber, idsCallback);
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                intent.putExtra("isNewLogin", true);
+                startActivity(intent);
                 finish();
                 return;
+
+//since it is the first time the newly registered user comes into app we have to search for the phones in this contact list
+// which are registered as our users
+// we put these contacts into GlobalContainer contacts HashMap
+
 
                 //startActivity(new Intent(LoginActivity.this,MainActivity.class));
                 //finish();

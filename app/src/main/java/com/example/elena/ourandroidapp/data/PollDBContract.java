@@ -14,7 +14,7 @@ public class PollDBContract {
 
     private static final String SQL_CREATE_POLL_TABLE = "CREATE TABLE IF NOT EXISTS "+PollEntry.TABLE_NAME+
             " ("+PollEntry._ID+" varchar PRIMARY KEY, "+
-            PollEntry.POLL_NAME_CLMN+" text,  "+ PollEntry.POLL_QUESTION_CLMN+" text, "+ PollEntry.POLL_ANON_CLMN+" integer, "+ PollEntry.POLL_CHANGED_CLMN+" integer, UNIQUE ("+ PollEntry._ID + ") ON CONFLICT REPLACE)";
+            PollEntry.POLL_NAME_CLMN+" text,  "+ PollEntry.POLL_QUESTION_CLMN+" text, "+ PollEntry.POLL_ANON_CLMN+" integer, "+ PollEntry.POLL_CHANGED_CLMN+" integer, "+ PollEntry.POLL_ALREADY_VOTED_CLMN+" integer, UNIQUE ("+ PollEntry._ID + ") ON CONFLICT REPLACE)";
     private static final String SQL_CREATE_OPTION_TABLE = "CREATE TABLE IF NOT EXISTS "+OptionEntry.TABLE_NAME+
             " ("+OptionEntry._ID+" integer PRIMARY KEY AUTOINCREMENT, "+
             OptionEntry.OPTION_TEXT_CLMN+" text, "
@@ -46,6 +46,8 @@ public class PollDBContract {
         public static final String POLL_QUESTION_CLMN = "poll_question";
         public static final String POLL_ANON_CLMN = "poll_anonymous";
         public static final String POLL_CHANGED_CLMN = "poll_changed";
+        public static final String POLL_ALREADY_VOTED_CLMN = "poll_already_voted";
+
 
     }
     public static class OptionEntry implements BaseColumns {

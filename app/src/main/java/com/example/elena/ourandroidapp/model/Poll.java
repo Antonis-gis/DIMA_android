@@ -32,6 +32,7 @@ public class Poll {
     protected int changed;
     @Expose @SerializedName("PARTICIPANTS")
     protected ArrayList<String> participants= new ArrayList<>();
+    protected int alreadyVoted;
 
     //protected DatabaseReference pollRef;
 
@@ -42,6 +43,14 @@ public class Poll {
     /*public void setRef(DatabaseReference ref) {
         pollRef = ref;
     }*/
+    public int checkIfVoted() {
+        return alreadyVoted;
+    }
+
+    public void setVoted() {
+        alreadyVoted = 1;
+    }
+
 
     public int getChanged() {
         return changed;
@@ -133,6 +142,7 @@ public class Poll {
         this.type=1;
         participants= new ArrayList<>();
         changed=0;
+        alreadyVoted=0;
     }
     public Poll(){
         options=new HashMap<>();
@@ -140,6 +150,7 @@ public class Poll {
         this.type=1;
         participants= new ArrayList<>();
         changed=0;
+        alreadyVoted=0;
 
     }
     public void addOption(String option_text){

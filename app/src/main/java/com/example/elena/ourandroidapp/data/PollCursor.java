@@ -35,6 +35,11 @@ public class PollCursor extends CursorWrapper{
 
     }
 
+    public Integer getIfAlreadyVoted(){
+        return getInt(getColumnIndex(PollDBContract.PollEntry.POLL_ALREADY_VOTED_CLMN));
+
+    }
+
 
 }
 

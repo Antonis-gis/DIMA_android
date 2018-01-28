@@ -29,20 +29,21 @@ public class ItemActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        final DatabaseService mPollService = DatabaseService.getInstance();
+        Intent intent = getIntent();
+        final String id = intent.getStringExtra("pollId");
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                mPollService.sendVote(id, GlobalContainer.getPolls().get(id).getOptions().get("try1"));
+                System.err.println(GlobalContainer.getPolls().get(id).checkIfVoted());
 
             }
         });
-        Intent intent = getIntent();
-        String id = intent.getStringExtra("pollId");
-        DatabaseService mPollService = DatabaseService.getInstance();
+
+
         DatabaseService.Callback callback = new DatabaseService.Callback() {
             @Override
             public void onLoad(String poll_id) {
@@ -58,13 +59,13 @@ public class ItemActivity extends AppCompatActivity {
 
         HashMap<String, Poll> polls = GlobalContainer.getPolls();
         GlobalContainer.getPolls().get(id).setChanged(0);
-        Poll p = GlobalContainer.getPolls().get(id);
+        //p = GlobalContainer.getPolls().get(id);
 
 
         TextView pollTextView = findViewById(R.id.textView);
-        pollTextView.setText(p.getTitle());
+        pollTextView.setText(GlobalContainer.getPolls().get(id).getTitle());
 
-        DatabaseReference ref = mPollService.getRefWithListener(p, callback);
+        DatabaseReference ref = mPollService.getRefWithListener(GlobalContainer.getPolls().get(id), callback);
             }
 
     @Override

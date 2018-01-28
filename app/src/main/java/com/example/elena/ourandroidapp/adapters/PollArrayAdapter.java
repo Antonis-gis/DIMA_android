@@ -41,7 +41,7 @@ public class PollArrayAdapter extends ArrayAdapter<Poll> {
         if (poll.getChanged()==1) {
             viewHolder.changedSign.setVisibility(View.VISIBLE);
         } else{
-            viewHolder.changedSign.setVisibility(View.GONE);
+            viewHolder.changedSign.setVisibility(View.INVISIBLE);
         }
         // viewHolder.directorTV.setText(poll.getQuestion());
 

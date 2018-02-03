@@ -9,17 +9,24 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ListView;
 
 import com.example.elena.ourandroidapp.R;
+import com.example.elena.ourandroidapp.adapters.NewOptionAdapter;
+import com.example.elena.ourandroidapp.adapters.PollArrayAdapter;
 import com.example.elena.ourandroidapp.model.Poll;
+import com.example.elena.ourandroidapp.services.GlobalContainer;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class NewPollActivity extends AppCompatActivity {
+    ListView optionsListView;
     public static final Random RANDOM = new Random();
     public static final String BACKEND_ACTION_SUBSCRIBE = "SUBSCRIBE";
     @Override
@@ -34,6 +41,8 @@ public class NewPollActivity extends AppCompatActivity {
         //receipients.add("1234567890");
         Poll newPoll = new Poll();
         final String newPollId = newPoll.getId();
+        final List<String> options=new ArrayList<>();
+        final NewOptionAdapter optionsArrayAdapter = new NewOptionAdapter(this, options);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,6 +66,22 @@ public class NewPollActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        Button add = (Button) findViewById(R.id.add);
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Toast.makeText(getApplicationContext(), "Lost the focus", Toast.LENGTH_LONG).show();
+             String str = "";
+             options.add(str);
+             optionsArrayAdapter.notifyDataSetChanged();
+
+            }
+        });
+
+        String str ="whatever";
+        options.add(str);
+        optionsListView = findViewById(R.id.new_options_list);
+        optionsListView.setAdapter(optionsArrayAdapter);
 
     }
 

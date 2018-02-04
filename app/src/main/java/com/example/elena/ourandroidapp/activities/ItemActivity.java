@@ -60,7 +60,7 @@ public class ItemActivity extends AppCompatActivity {
         };
 
         HashMap<String, Poll> polls = GlobalContainer.getPolls();
-        GlobalContainer.getPolls().get(id).setChanged(0);
+        //GlobalContainer.getPolls().get(id).setChanged(0);
         //p = GlobalContainer.getPolls().get(id);
 
 

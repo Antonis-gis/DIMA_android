@@ -18,14 +18,17 @@ import com.example.elena.ourandroidapp.R;
 import com.example.elena.ourandroidapp.adapters.NewOptionAdapter;
 import com.example.elena.ourandroidapp.adapters.PollArrayAdapter;
 import com.example.elena.ourandroidapp.model.Poll;
+import com.example.elena.ourandroidapp.model.PollNotAnonymous;
 import com.example.elena.ourandroidapp.services.GlobalContainer;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 public class NewPollActivity extends AppCompatActivity {
     ListView optionsListView;
@@ -35,6 +38,7 @@ public class NewPollActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_poll);
+        HashMap<String, Poll> polls3 = GlobalContainer.getPolls();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -63,14 +67,24 @@ public class NewPollActivity extends AppCompatActivity {
                         .addData("recipient", serialized)
                         .build());
                         */
+                String pollId = UUID.randomUUID().toString().replaceAll("-", "");
                 int idx = options.size()-1;
                 final EditText editView = (EditText) optionsListView.getChildAt(idx).findViewById(R.id.new_option_string);
                 options.remove(idx);
                 options.add(idx, editView.getText().toString());
-                Poll newPoll = new Poll("", "", "");
-
+                EditText titleET = findViewById(R.id.new_title);
+                EditText questionET = findViewById(R.id.new_question);
+                Poll newPoll = new Poll(titleET.getText().toString(), questionET.getText().toString(), pollId);
+                for(String option: options){
+                    newPoll.addOption(option);
+                }
+                HashMap<String, Poll> polls = GlobalContainer.getPolls();
                 Intent intent = new Intent(NewPollActivity.this,ChooseContactsActivity.class);
-                intent.putExtra("pollId", "3");
+                intent.putExtra("pollId", newPoll.getId());
+                Bundle b = new Bundle();
+                b.putSerializable("poll", newPoll);
+                intent.putExtras(b);
+                intent.putExtra("type", Integer.toString(newPoll.getType()));
                 startActivity(intent);
             }
         });
@@ -102,6 +116,7 @@ public class NewPollActivity extends AppCompatActivity {
                                 }
                             }
                         });
+
                         Button delBtn = (Button) optionsListView.getChildAt(idx).findViewById(R.id.delete_btn);
                         delBtn.setOnClickListener(new View.OnClickListener(){
                             @Override
@@ -118,6 +133,7 @@ public class NewPollActivity extends AppCompatActivity {
 
                             }
                         });
+
                     }
                 });
 

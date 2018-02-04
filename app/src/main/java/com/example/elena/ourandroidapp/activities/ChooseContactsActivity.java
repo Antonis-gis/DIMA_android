@@ -16,12 +16,16 @@ import android.widget.ListView;
 import com.example.elena.ourandroidapp.R;
 import com.example.elena.ourandroidapp.model.Contact;
 import com.example.elena.ourandroidapp.model.Poll;
+import com.example.elena.ourandroidapp.model.PollNotAnonymous;
+import com.example.elena.ourandroidapp.services.DatabaseService;
 import com.example.elena.ourandroidapp.services.GlobalContainer;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import com.example.elena.ourandroidapp.adapters.ContactArrayAdapter;
@@ -47,6 +51,7 @@ public class ChooseContactsActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                /* ********************************VERSION WITH SERVER *************************************
                 String  SENDER_ID="656945745490";
                 //String msgId = UUID.randomUUID().toString();;
                 FirebaseMessaging fm = FirebaseMessaging.getInstance();
@@ -59,7 +64,29 @@ public class ChooseContactsActivity extends AppCompatActivity {
                         .addData("poll_id", id)
                         .addData("recipient", serialized)
                         .build());
+
+                        */
                 ///also here we should save poll to repository and to globalContainer (maybe it is not enough)
+                HashMap<String, Poll> polls2 = GlobalContainer.getPolls();
+                Intent incomingIntent = getIntent();
+                String what = incomingIntent.getStringExtra("type");
+                Integer type = Integer.parseInt(incomingIntent.getStringExtra("type"));
+                Poll p;
+                if(type==1){
+                    p = (Poll)incomingIntent.getSerializableExtra("poll");
+                } else{
+                    p = (PollNotAnonymous)incomingIntent.getSerializableExtra("poll");
+                }
+                DatabaseService mPollService = DatabaseService.getInstance();
+                mPollService.writeNewPoll(p);
+
+                for (String receipient: receipients){
+                    mPollService.writeNewPollToUser(receipient, p.getId());
+                }
+                FirebaseAuth auth = FirebaseAuth.getInstance();
+                String mPhoneNumber = auth.getCurrentUser().getPhoneNumber();
+                mPollService.writeNewPollToUser(mPhoneNumber, p.getId());
+
                 Intent intent = new Intent(ChooseContactsActivity.this, MainActivity.class);
                 startActivity(intent);
             }

@@ -2,6 +2,8 @@ package com.example.elena.ourandroidapp.services;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.TelephonyManager;
 
 import com.example.elena.ourandroidapp.ApplicationContextProvider;
@@ -11,6 +13,7 @@ import com.example.elena.ourandroidapp.model.Contact;
 import com.example.elena.ourandroidapp.model.Poll;
 import com.example.elena.ourandroidapp.model.PollNotAnonymous;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -49,6 +52,11 @@ public class DatabaseService {
 
     public void writeTokenData(String userId, String token) {
         mDatabase.child("users").child(userId).child("token").setValue(token);
+
+    }
+
+    public void writeNewPollToUser(String userId, String pollId) {
+        mDatabase.child("users").child(userId).child("poll_ids").child(pollId).setValue(0);
 
     }
 
@@ -162,6 +170,10 @@ public class DatabaseService {
                     }
                     }
 
+
+                    if(GlobalContainer.getPolls().containsKey(newPoll.getId())&&(GlobalContainer.getPolls().get(newPoll.getId()).getChanged()==1)){
+                        newPoll.setChanged(1);
+                    }
                     polls.put(poll.getId(), newPoll);
                     PollSQLiteRepository repository = new PollSQLiteRepository(ApplicationContextProvider.getContext());
                     repository.deletePoll(poll.getId());
@@ -188,8 +200,9 @@ public class DatabaseService {
 
     }
 
-
+/*
             public DatabaseReference getRefWithSingleEventListener(Poll poll, final Callback callback) {
+        //***********************this is to retrieve poll so if it is already here - skip***********
                 String query = "polls/" + poll.getId();
                 DatabaseReference pollRef = FirebaseDatabase.getInstance().getReference(query);
                 ValueEventListener postListener = new ValueEventListener() {
@@ -229,6 +242,7 @@ public class DatabaseService {
                             }
 
                             polls.put(poll.getId(), newPoll);
+
                             PollSQLiteRepository repository = new PollSQLiteRepository(ApplicationContextProvider.getContext());
                             repository.deletePoll(poll.getId());
                             repository.add(newPoll);
@@ -255,7 +269,54 @@ public class DatabaseService {
         return pollRef;
 
     }
+*/
+public DatabaseReference getRefWithSingleEventListener(Poll poll, final Callback callback) {
+    //***********************this is to retrieve poll so if it is already here - skip***********
+    String query = "polls/" + poll.getId();
+    DatabaseReference pollRef = FirebaseDatabase.getInstance().getReference(query);
+    ValueEventListener postListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            // Get Post object and use the values to update the UI
+            String id = dataSnapshot.child("id").getValue(String.class);
+            if(id==null){
+                //what will we do if pol is deleted from database - actually it shouldnt happen
+            } else {
+                HashMap<String, Poll> polls = GlobalContainer.getPolls();
+                Poll newPoll= new Poll();
+                Poll poll = polls.get(id);
+                if (poll instanceof PollNotAnonymous) {
+                    newPoll = dataSnapshot.getValue(PollNotAnonymous.class);
+                    //this cycle is not approptiate solution but it is here because I couldnt find other way to have optionsnotAnanonous in not anonumous polls
+                    for(Poll.Option opt: newPoll.getOptions().values()){
+                        PollNotAnonymous.OptionNotAnonymous optna = dataSnapshot.child("options").child(opt.getText()).getValue(PollNotAnonymous.OptionNotAnonymous.class);
+                        newPoll.getOptions().put(opt.getText(), optna);
+                    }
+                } else {
+                    newPoll = dataSnapshot.getValue(Poll.class);
+                }
 
+                newPoll.setChanged(1);
+                polls.put(poll.getId(), newPoll);
+
+                PollSQLiteRepository repository = new PollSQLiteRepository(ApplicationContextProvider.getContext());
+                repository.deletePoll(poll.getId());
+                repository.add(newPoll);
+                GlobalContainer.getPolls().put(poll.getId(), newPoll);//this is so we want call onDataChange twice
+            }
+
+        }
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+            callback.onFailure();
+        }
+
+    };
+
+    pollRef.addListenerForSingleValueEvent(postListener);
+    return pollRef;
+
+}
     public ArrayList<Binding> getRefsWithSharedCallbackOnAllLoaded(final Callback callback){
         final ArrayList<Integer> counter = new ArrayList<>();
         final int count= GlobalContainer.getPolls().size();
@@ -366,27 +427,29 @@ public class DatabaseService {
             ///This onDataChange will be run only once (coz ListenerForSingleValueEvent)
             public void onDataChange(DataSnapshot dataSnapshot) {
                 HashMap<String, Integer> temp_ids = dataSnapshot.getValue(t);
-                final Integer size = temp_ids.size();
-                final ArrayList<Integer> counter = new ArrayList<>();
-                DatabaseService.Callback accCallback = new DatabaseService.Callback() {
-                    public void onLoad(String poll_id) {
-                    counter.add(1);
-                    if (counter.size()==size){
-                        callback.onLoad(""); //this we call after we retrieve to globalContainer all polls
+                if(temp_ids!=null) {
+                    final Integer size = temp_ids.size();
+                    final ArrayList<Integer> counter = new ArrayList<>();
+                    DatabaseService.Callback accCallback = new DatabaseService.Callback() {
+                        public void onLoad(String poll_id) {
+                            counter.add(1);
+                            if (counter.size() == size) {
+                                callback.onLoad(""); //this we call after we retrieve to globalContainer all polls
+                            }
+                        }
+
+                        @Override
+                        public void onFailure() {
+
+                        }
+                    };
+
+                    for (Map.Entry<String, Integer> entry : temp_ids.entrySet())
+
+                    {
+                        //ids.add(str);
+                        retrievePollToGlobalContainer(entry.getKey(), accCallback);
                     }
-                    }
-
-                    @Override
-                    public void onFailure() {
-
-                    }
-                };
-
-                for (Map.Entry<String, Integer> entry : temp_ids.entrySet())
-
-                {
-                    //ids.add(str);
-                    retrievePollToGlobalContainer(entry.getKey(), accCallback);
                 }
 
             }
@@ -414,6 +477,7 @@ public class DatabaseService {
                         poll= dataSnapshot.getValue(PollNotAnonymous.class);
                     }
                     //HashMap<String, Poll> polls = GlobalContainer.getPolls();
+                    poll.setChanged(1);
                     GlobalContainer.getPolls().put(poll.getId(), poll);
 
                     DatabaseReference ref =getRefWithSingleEventListener(poll, callback);
@@ -505,6 +569,45 @@ public interface Callback {
         public void onFailure(){
 
         }
+    }
+
+    public void setNewPollListener(final Callback callback){
+        GlobalContainer.getSelfRef().addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                DatabaseService mPollService = DatabaseService.getInstance();
+                final String id = dataSnapshot.getKey();
+
+                mPollService.retrievePollToGlobalContainer(id, callback);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public DatabaseReference getSelfRef(){
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        String mPhoneNumber = auth.getCurrentUser().getPhoneNumber();
+        DatabaseReference rootRef = mDatabase.child("users").child(mPhoneNumber).child("poll_ids");
+        return rootRef;
     }
 
 }

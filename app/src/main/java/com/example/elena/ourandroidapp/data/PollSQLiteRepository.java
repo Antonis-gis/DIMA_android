@@ -194,21 +194,21 @@ public class PollSQLiteRepository {
 
     public OptionCursor findOptions(String pollid){
 
-        Cursor cursor = db.rawQuery("SELECT * FROM " +  OptionEntry.TABLE_NAME+ " WHERE poll_id=" + pollid,
+        Cursor cursor = db.rawQuery("SELECT * FROM " +  OptionEntry.TABLE_NAME+ " WHERE poll_id='" + pollid + "'",
                 null);
         return new OptionCursor(cursor);
     }
 
     public ParticipantCursor findParticipants(String pollid){
 
-        Cursor cursor = db.rawQuery("SELECT * FROM " +  ParticipantEntry.TABLE_NAME+ " WHERE poll_id=" + pollid,
+        Cursor cursor = db.rawQuery("SELECT * FROM " +  ParticipantEntry.TABLE_NAME+ " WHERE poll_id='" + pollid + "'",
                 null);
         return new ParticipantCursor(cursor);
     }
 
     public VoteCursor findVotes(String pollid, String optionid){
         Cursor cursor = db.rawQuery("SELECT phone_number AS phone_number FROM " + OptionEntry.TABLE_NAME+ " LEFT JOIN  " +
-                        VoteEntry.TABLE_NAME + " ON option._id=vote.option_id WHERE option.poll_id=" + pollid +" AND vote.option_id=" + optionid,
+                        VoteEntry.TABLE_NAME + " ON option._id=vote.option_id WHERE option.poll_id='" + pollid + "'" +" AND vote.option_id=" + optionid,
                 null);
 
         return new VoteCursor(cursor);

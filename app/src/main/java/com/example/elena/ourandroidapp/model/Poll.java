@@ -1,6 +1,7 @@
 package com.example.elena.ourandroidapp.model;
 
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Exclude;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
@@ -15,7 +16,7 @@ import java.util.Map;
  * Created by elena on 25/11/17.
  */
 
-public class Poll {
+public class Poll implements java.io.Serializable{
     @Expose @SerializedName("TITLE")
     protected String title;
     @Expose @SerializedName("QUESTION")
@@ -28,10 +29,13 @@ public class Poll {
 
     @Expose @SerializedName("TYPE")
     protected int type;
-    @Expose @SerializedName("CHANGED")
-    protected int changed;
+    //@Expose @SerializedName("CHANGED")
+
     @Expose @SerializedName("PARTICIPANTS")
     protected ArrayList<String> participants= new ArrayList<>();
+    @Exclude
+    protected int changed;
+    @Exclude
     protected int alreadyVoted;
 
     //protected DatabaseReference pollRef;
@@ -57,6 +61,7 @@ public class Poll {
     }
 
     public void setChanged(int changed) {
+
         this.changed = changed;
     }
 
@@ -76,7 +81,7 @@ public class Poll {
         this.id = id;
     }
 
-    static public class Option{
+    static public class Option implements java.io.Serializable{
         @Expose @SerializedName("TEXT")
     protected String text;
         @Expose @SerializedName("VOTES_COUNT")

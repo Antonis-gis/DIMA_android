@@ -72,6 +72,7 @@ public class NewOptionAdapter extends ArrayAdapter<String> {
         });
         */
 
+        Button delBtn = (Button)convertView.findViewById(R.id.delete_btn);
 
 
 

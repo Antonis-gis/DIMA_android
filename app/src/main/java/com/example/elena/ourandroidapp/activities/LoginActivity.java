@@ -5,9 +5,11 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.example.elena.ourandroidapp.ApplicationContextProvider;
 import com.example.elena.ourandroidapp.model.Contact;
 import com.example.elena.ourandroidapp.model.Poll;
 import com.example.elena.ourandroidapp.services.DatabaseService;
@@ -30,6 +32,20 @@ import java.util.HashMap;
             android:theme="@android:style/Theme.NoDisplay"></activity>
  */
 public class LoginActivity extends AppCompatActivity {
+    DatabaseService.Callback callbackNP = new DatabaseService.Callback() {//we need somehow find right poll and update its view
+        @Override
+        public void onLoad(String poll_id) {
+            LocalBroadcastManager broadcaster = LocalBroadcastManager.getInstance(ApplicationContextProvider.getContext());
+            Intent intent = new Intent("NewPollReceived");
+            intent.putExtra("poll_id", poll_id);
+            broadcaster.sendBroadcast(intent);
+        }
+
+        @Override
+        public void onFailure() {
+
+        }
+    };
     private static final int RC_SIGN_IN = 123;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,6 +58,7 @@ public class LoginActivity extends AppCompatActivity {
             DatabaseService mTokenService = DatabaseService.getInstance();
             String refreshedToken = FirebaseInstanceId.getInstance().getToken();
             mTokenService.writeTokenData(mPhoneNumber,refreshedToken);
+            mTokenService.setNewPollListener(callbackNP);
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
             finish();
         } else {
@@ -72,6 +89,8 @@ public class LoginActivity extends AppCompatActivity {
                 DatabaseService mTokenService = DatabaseService.getInstance();
                 String refreshedToken = FirebaseInstanceId.getInstance().getToken();
                 mTokenService.writeTokenData(mPhoneNumber,refreshedToken);
+
+                mTokenService.setNewPollListener(callbackNP);
                 DatabaseService mCheckService = DatabaseService.getInstance();
                 HashMap<String, Contact> contactsToCheck=new HashMap<>();
                 Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,null,null, null);
@@ -103,11 +122,6 @@ public class LoginActivity extends AppCompatActivity {
                 DatabaseService mIdsService = DatabaseService.getInstance();
                 DatabaseService.Callback idsCallback = new DatabaseService.Callback() {
                     public void onLoad(String poll_id) {
-
-
-
-
-
 
                     }
 

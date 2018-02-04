@@ -20,6 +20,7 @@ public class GlobalContainer {
     static PollSQLiteRepository repository = new PollSQLiteRepository(ApplicationContextProvider.getContext());
     static HashMap<String, Poll> polls;
     static HashMap<String, DatabaseReference> pollRefs;
+    static DatabaseReference selfRef;
     static HashMap<String, Contact> contacts;
     public static synchronized HashMap<String, Poll> getPolls(){
         if (polls == null)
@@ -29,6 +30,7 @@ public class GlobalContainer {
     }
 
     public static synchronized void emptyPolls(){
+
         polls=new HashMap<>();
     }
     public static synchronized void emptyRefs(){
@@ -60,10 +62,22 @@ public class GlobalContainer {
 
         return pollRefs;
     }
+
+    public static DatabaseReference getSelfRef(){
+        if (selfRef == null){
+            DatabaseService mDatabase = DatabaseService.getInstance();
+            selfRef = mDatabase.getSelfRef();
+        }
+
+        return selfRef;
+    }
+
     private GlobalContainer() {
         polls = repository.returnPolls();
         contacts = repository.returnContacts();
         pollRefs = new HashMap<>();
+        DatabaseService mDatabase = DatabaseService.getInstance();
+        selfRef = mDatabase.getSelfRef();
     }
     public static synchronized void updatePolls(HashMap<String, Poll> newpolls){
             polls = newpolls;

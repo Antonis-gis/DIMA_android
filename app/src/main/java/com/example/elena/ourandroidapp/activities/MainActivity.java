@@ -26,6 +26,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     ListView pollsListView;
     ArrayList<Binding> bindings=new ArrayList<>();
     final List<Poll> polls=new ArrayList<>(GlobalContainer.getPolls().values());
+    Boolean init = true;
 
 
     @Override
@@ -84,8 +86,10 @@ public class MainActivity extends AppCompatActivity {
                 DatabaseService mIdsService = DatabaseService.getInstance();
                 DatabaseService.Callback idsCallback = new DatabaseService.Callback() {
                     public void onLoad(String poll_id) {
+/*
                         for (Poll p : GlobalContainer.getPolls().values()) //if we are here then before polls were empty, initialized woth empty gobalContainer
                             polls.add(p);
+*/
                         DatabaseService mInitService = DatabaseService.getInstance();
                         for (Poll p : GlobalContainer.getPolls().values()){
                             Binding b = mInitService.getRefWithListener(p, callback);
@@ -145,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
                 //PollSQLiteRepository repository = new PollSQLiteRepository(ApplicationContextProvider.getContext());
                 //repository.deletePoll("6");
                 clearBindings();
+                HashMap<String, Poll> polls = GlobalContainer.getPolls();
                 Intent intent = new Intent(MainActivity.this, NewPollActivity.class);
                 startActivity(intent);
 
@@ -181,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
 
             String pollId = polls.get(i).getId();
             if(polls.get(i).getChanged()==1){
+                HashMap<String, Poll> polls3 = GlobalContainer.getPolls();
                 polls.get(i).setChanged(0);
 
                 GlobalContainer.getPolls().get(polls.get(i).getId()).setChanged(0);
@@ -225,17 +231,21 @@ public class MainActivity extends AppCompatActivity {
             //here we should update the ListView
             //TODO
             //see if it works
-            String poll_id = intent.getExtras().getString("poll_id");
-            GlobalContainer.getPolls().get(poll_id).setChanged(1);
+                String poll_id = intent.getExtras().getString("poll_id");
+                GlobalContainer.getPolls().get(poll_id).setChanged(1);
+                HashMap<String, Poll> polls2 = GlobalContainer.getPolls();
 
-                    polls.add(GlobalContainer.getPolls().get(poll_id));
+                //polls.add(GlobalContainer.getPolls().get(poll_id));
+                polls.clear();
+                polls.addAll(GlobalContainer.getPolls().values());
 
 
+                ((BaseAdapter) pollsListView.getAdapter()).notifyDataSetChanged();
+                //EditText edit =(EditText) findViewById(R.id.editText4);
+                //edit.setText(intent.getExtras().getString("message"));
+                HashMap<String, Poll> polls3 = GlobalContainer.getPolls();
+            }
 
-            ((BaseAdapter) pollsListView.getAdapter()).notifyDataSetChanged();
-            //EditText edit =(EditText) findViewById(R.id.editText4);
-            //edit.setText(intent.getExtras().getString("message"));
-        }
     };
 
 

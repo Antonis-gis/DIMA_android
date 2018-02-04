@@ -40,6 +40,7 @@ public class NewOptionAdapter extends ArrayAdapter<String> {
 
             convertView.setTag(new NewOptionAdapter.NewOptionViewHolder(convertView, this));
         }
+        /*
         Button deleteBtn = (Button)convertView.findViewById(R.id.delete_btn);
         deleteBtn.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -49,10 +50,12 @@ public class NewOptionAdapter extends ArrayAdapter<String> {
                 notifyDataSetChanged();
             }
         });
+        */
         final NewOptionAdapter.NewOptionViewHolder viewHolder = (NewOptionAdapter.NewOptionViewHolder) convertView.getTag();
 
 
         viewHolder.optionText.setText(option);
+        /*
         final EditText optionT = (EditText) convertView.findViewById(R.id.new_option_string);
         optionT.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -67,6 +70,7 @@ public class NewOptionAdapter extends ArrayAdapter<String> {
                 }
             }
         });
+        */
 
 
 
@@ -87,4 +91,6 @@ public class NewOptionAdapter extends ArrayAdapter<String> {
 
 
     }
+
+
 }

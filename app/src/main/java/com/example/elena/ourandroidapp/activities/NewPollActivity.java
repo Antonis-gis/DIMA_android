@@ -7,9 +7,11 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import com.example.elena.ourandroidapp.R;
@@ -61,6 +63,12 @@ public class NewPollActivity extends AppCompatActivity {
                         .addData("recipient", serialized)
                         .build());
                         */
+                int idx = options.size()-1;
+                final EditText editView = (EditText) optionsListView.getChildAt(idx).findViewById(R.id.new_option_string);
+                options.remove(idx);
+                options.add(idx, editView.getText().toString());
+                Poll newPoll = new Poll("", "", "");
+
                 Intent intent = new Intent(NewPollActivity.this,ChooseContactsActivity.class);
                 intent.putExtra("pollId", "3");
                 startActivity(intent);
@@ -70,18 +78,87 @@ public class NewPollActivity extends AppCompatActivity {
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 //Toast.makeText(getApplicationContext(), "Lost the focus", Toast.LENGTH_LONG).show();
+
              String str = "";
              options.add(str);
-             optionsArrayAdapter.notifyDataSetChanged();
 
-            }
-        });
+                        //optionsListView.invalidateViews();
+                        optionsArrayAdapter.notifyDataSetChanged();
+                        final int idx = options.size()-2;
+                        final EditText editView = (EditText) optionsListView.getChildAt(idx).findViewById(R.id.new_option_string);
+                        editView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                            @Override
+                            public void onFocusChange(View view, boolean hasFocus) {
+                                if (hasFocus) {
+
+                                } else {
+
+                                    options.remove(idx);
+                                    options.add(idx, editView.getText().toString());
+                                    optionsArrayAdapter.notifyDataSetChanged();
+
+                                }
+                            }
+                        });
+                        Button delBtn = (Button) optionsListView.getChildAt(idx).findViewById(R.id.delete_btn);
+                        delBtn.setOnClickListener(new View.OnClickListener(){
+                            @Override
+                            public void onClick(View v) {
+                                //do something
+                                int idxlast = options.size()-1;
+                                final EditText editViewLast = (EditText) optionsListView.getChildAt(idxlast).findViewById(R.id.new_option_string);
+
+                                options.add(idxlast, editViewLast.getText().toString());
+                                options.remove(options.size()-1); //or some other task
+                                options.remove(idx);
+                                optionsArrayAdapter.notifyDataSetChanged();
+
+
+                            }
+                        });
+                    }
+                });
+
+
+
+
 
         String str ="whatever";
         options.add(str);
         optionsListView = findViewById(R.id.new_options_list);
         optionsListView.setAdapter(optionsArrayAdapter);
+        for (int i=0; i<optionsListView.getChildCount(); i++) {
+            final int idx = i;
+            final EditText editView = (EditText) optionsListView.getChildAt(i).findViewById(R.id.new_option_string);
+            editView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View view, boolean hasFocus) {
+                    if (hasFocus) {
+
+                    } else {
+                        options.remove(idx);
+                        options.add(idx, editView.getText().toString());
+                        optionsArrayAdapter.notifyDataSetChanged();
+
+                    }
+                }
+            });
+            Button delBtn = (Button) optionsListView.getChildAt(i).findViewById(R.id.delete_btn);
+            delBtn.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    //do something
+                    options.remove(idx); //or some other task
+                    optionsArrayAdapter.notifyDataSetChanged();
+                }
+            });
+
+        }
+
+
+
 
     }
 

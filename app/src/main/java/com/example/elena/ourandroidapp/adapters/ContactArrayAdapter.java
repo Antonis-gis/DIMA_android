@@ -40,18 +40,18 @@ public class ContactArrayAdapter extends ArrayAdapter<Pair<Boolean, Contact>> {
          ContactViewHolder viewHolder = ( ContactViewHolder) convertView.getTag();
 
         //viewHolder.name.setText(contact.getName());
-        viewHolder.phoneNumber.setText(contact.getPhoneNumber());
+        viewHolder.cName.setText(contact.getName());
 
         return convertView;
     }
     static class ContactViewHolder {
 
-        TextView name;
-        TextView phoneNumber;
+
+        TextView cName;
 
         public  ContactViewHolder(View view){
-            phoneNumber = (TextView) view.
-                    findViewById(R.id.pollTitleTextView);
+            cName = (TextView) view.
+                    findViewById(R.id.contact_name);
             //name = (TextView) view.
                 //    findViewById(R.id.pollQuestionTextView);
         }

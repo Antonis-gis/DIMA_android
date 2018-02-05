@@ -11,6 +11,7 @@ import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.ListView;
 
 import com.example.elena.ourandroidapp.R;
@@ -44,8 +45,6 @@ public class ChooseContactsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Intent intent = getIntent();
         final String id = intent.getStringExtra("pollId");
-        final ArrayList<String> receipients = new ArrayList<>();
-        receipients.add("+393457891947");
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -67,6 +66,13 @@ public class ChooseContactsActivity extends AppCompatActivity {
 
                         */
                 ///also here we should save poll to repository and to globalContainer (maybe it is not enough)
+                final ArrayList<String> receipients = new ArrayList<>();
+                for (Pair<Boolean, Contact> ct : contacts){
+
+                    if(ct.first){
+                        receipients.add(ct.second.getPhoneNumber());
+                    }
+                }
                 HashMap<String, Poll> polls2 = GlobalContainer.getPolls();
                 Intent incomingIntent = getIntent();
                 String what = incomingIntent.getStringExtra("type");
@@ -95,7 +101,6 @@ public class ChooseContactsActivity extends AppCompatActivity {
         contactsListView = findViewById(R.id.contactsList);
 
 
-final ArrayList<String> choosenContacts= new ArrayList<>();
         final ContactArrayAdapter contactsArrayAdapter = new ContactArrayAdapter(this, contacts);
         contactsListView.setAdapter(contactsArrayAdapter);
 
@@ -104,10 +109,18 @@ final ArrayList<String> choosenContacts= new ArrayList<>();
                     @Override
                     public void onItemClick(AdapterView<?> adapterView,
                                             View view, int i, long l) {
+                        CheckBox cb = view.findViewById(R.id.checkBox);
+                        if(cb.isChecked()){
+                            cb.setChecked(false);
+                            contacts.set(i, new Pair(false, contacts.get(i).second));
+                        }else{
+                            cb.setChecked(true);
+                            contacts.set(i, new Pair(true, contacts.get(i).second));
 
-                        String phoneNumber = contacts.get(i).second.getPhoneNumber();
-                        Boolean newBool = !contacts.get(i).first;
-                        contacts.set(i, new Pair(newBool, contacts.get(i).second));
+                        }
+                        //String phoneNumber = contacts.get(i).second.getPhoneNumber();
+                        //Boolean newBool = !contacts.get(i).first;
+                        //contacts.set(i, new Pair(newBool, contacts.get(i).second));
                     }
                 });
 

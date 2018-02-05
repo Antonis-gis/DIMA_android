@@ -141,7 +141,7 @@ public class NewPollActivity extends AppCompatActivity {
 
 
 
-        String str ="whatever";
+        String str ="";
         options.add(str);
         optionsListView = findViewById(R.id.new_options_list);
         optionsListView.setAdapter(optionsArrayAdapter);

@@ -174,6 +174,9 @@ public class DatabaseService {
                     if(GlobalContainer.getPolls().containsKey(newPoll.getId())&&(GlobalContainer.getPolls().get(newPoll.getId()).getChanged()==1)){
                         newPoll.setChanged(1);
                     }
+                    if(poll.checkIfVoted()==1){
+                        newPoll.setVoted();
+                    }
                     polls.put(poll.getId(), newPoll);
                     PollSQLiteRepository repository = new PollSQLiteRepository(ApplicationContextProvider.getContext());
                     repository.deletePoll(poll.getId());
@@ -577,8 +580,9 @@ public interface Callback {
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 DatabaseService mPollService = DatabaseService.getInstance();
                 final String id = dataSnapshot.getKey();
-
+            if(!(GlobalContainer.getPolls().containsKey(id))) {
                 mPollService.retrievePollToGlobalContainer(id, callback);
+            }
             }
 
             @Override

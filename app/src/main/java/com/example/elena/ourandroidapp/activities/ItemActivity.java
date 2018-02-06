@@ -100,12 +100,28 @@ public class ItemActivity extends AppCompatActivity {
                                 PollSQLiteRepository repository = new PollSQLiteRepository(ApplicationContextProvider.getContext());
                                 repository.deletePoll(poll.getId());
                                 repository.add(poll);
-                                HashMap<String, Poll> polls3 = GlobalContainer.getPolls();
                                 optionsArrayAdapter.notifyDataSetChanged();
                             }
                         });
                         }
-                }
+                    if(poll instanceof  PollNotAnonymous){
+                        final Button showBtn = (Button) optionsListView.getChildAt(i).findViewById(R.id.show_vote_participants);
+                        showBtn.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                  TextView votedText = optionsListView.getChildAt(idx).findViewById(R.id.list_of_voted);
+                                  if(votedText.getVisibility() == View.VISIBLE){
+                                      votedText.setVisibility(View.GONE);
+                                      showBtn.setText("Show voted");
+                                  } else{
+                                      votedText.setVisibility(View.VISIBLE);
+                                      showBtn.setText("Hide voted");
+                                  }
+                            }
+                        });
+                                                       }
+                    }
+
                 optionsListView.removeOnLayoutChangeListener(this);
             }
         });
@@ -132,6 +148,8 @@ public class ItemActivity extends AppCompatActivity {
         questionView.setText(poll.getQuestion());
 
         b = mPollService.getRefWithListener(GlobalContainer.getPolls().get(id), callback);
+
+
             }
 
     @Override

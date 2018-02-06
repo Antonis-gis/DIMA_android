@@ -11,7 +11,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.elena.ourandroidapp.R;
+import com.example.elena.ourandroidapp.model.Contact;
 import com.example.elena.ourandroidapp.model.Poll;
+import com.example.elena.ourandroidapp.model.PollNotAnonymous;
+import com.example.elena.ourandroidapp.services.GlobalContainer;
 
 import java.util.List;
 
@@ -48,6 +51,20 @@ public class Option_Adapter extends ArrayAdapter<Poll.Option> {
         }
         int optionPopularity = (option.getVotesCount()/numberOfParticipants)*100;
         viewHolder.mProgress.setProgress(optionPopularity);
+        if(option instanceof PollNotAnonymous.OptionNotAnonymous){
+            viewHolder.showBtn.setVisibility(View.VISIBLE);
+            String str="";
+            for (String voted_participant : ((PollNotAnonymous.OptionNotAnonymous) option).getVoted()){
+                Contact c = GlobalContainer.getContacts().get(voted_participant);
+                if(c!=null) {
+                    str += GlobalContainer.getContacts().get(voted_participant).getName() + ", ";
+                } else {
+                    str+= voted_participant + ", ";
+                }
+            }
+            str = str.substring(0, str.length() - 2);
+            viewHolder.votedText.setText(str);
+        }
 
 
         return convertView;
@@ -56,11 +73,15 @@ public class Option_Adapter extends ArrayAdapter<Poll.Option> {
 
         TextView optionText;
         ProgressBar mProgress;
+        TextView votedText;
+        Button showBtn;
 
         public  NewOptionViewHolder(View view, Option_Adapter newOptionAdapter){
             optionText = (TextView) view.
                     findViewById(R.id.option_string);
             mProgress=view.findViewById(R.id.votes_progress_bar);
+            votedText = view.findViewById(R.id.list_of_voted);
+            showBtn = view.findViewById(R.id.show_vote_participants);
 
 
         }

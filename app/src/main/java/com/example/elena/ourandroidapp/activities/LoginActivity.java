@@ -104,7 +104,7 @@ public class LoginActivity extends AppCompatActivity {
                         System.err.println(value.getName());
                     }
 
-                    contactsToCheck.put(name, c);
+                    contactsToCheck.put(phoneNumber, c);
 
                 }
                 DatabaseService.ContactsCallback callback = new DatabaseService.ContactsCallback() {

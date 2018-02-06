@@ -84,11 +84,13 @@ public class ChooseContactsActivity extends AppCompatActivity {
                     p = (PollNotAnonymous)incomingIntent.getSerializableExtra("poll");
                 }
                 DatabaseService mPollService = DatabaseService.getInstance();
-                mPollService.writeNewPoll(p);
+
 
                 for (String receipient: receipients){
                     mPollService.writeNewPollToUser(receipient, p.getId());
+                    p.addParticipant(receipient);
                 }
+                mPollService.writeNewPoll(p);
                 FirebaseAuth auth = FirebaseAuth.getInstance();
                 String mPhoneNumber = auth.getCurrentUser().getPhoneNumber();
                 mPollService.writeNewPollToUser(mPhoneNumber, p.getId());

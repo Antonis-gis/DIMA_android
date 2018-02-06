@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.example.elena.ourandroidapp.ApplicationContextProvider;
 import com.example.elena.ourandroidapp.model.Contact;
 import com.example.elena.ourandroidapp.model.Poll;
 import com.example.elena.ourandroidapp.model.Poll.*;
@@ -25,10 +26,10 @@ import static com.example.elena.ourandroidapp.data.PollDBContract.*;
  */
 
 public class PollSQLiteRepository {
-    private SQLiteDatabase db;
+    private static SQLiteDatabase db =getWritableDatabase(ApplicationContextProvider.getContext());
 
     public PollSQLiteRepository(Context context){
-        db = getWritableDatabase(context);
+       // db = getWritableDatabase(context);
     }
 
     public void truncateContactsTable(){

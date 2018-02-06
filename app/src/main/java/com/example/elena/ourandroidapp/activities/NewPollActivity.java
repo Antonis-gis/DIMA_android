@@ -11,8 +11,10 @@ import android.text.Editable;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.elena.ourandroidapp.R;
 import com.example.elena.ourandroidapp.adapters.NewOptionAdapter;
@@ -67,25 +69,39 @@ public class NewPollActivity extends AppCompatActivity {
                         .addData("recipient", serialized)
                         .build());
                         */
+
                 String pollId = UUID.randomUUID().toString().replaceAll("-", "");
                 int idx = options.size()-1;
                 final EditText editView = (EditText) optionsListView.getChildAt(idx).findViewById(R.id.new_option_string);
                 options.remove(idx);
                 options.add(idx, editView.getText().toString());
                 EditText titleET = findViewById(R.id.new_title);
+                //String title = titleET.getText();
+
                 EditText questionET = findViewById(R.id.new_question);
-                Poll newPoll = new Poll(titleET.getText().toString(), questionET.getText().toString(), pollId);
-                for(String option: options){
-                    newPoll.addOption(option);
+                if(options.contains("")||titleET.getText().toString().equals("")||questionET.getText().toString().equals("")){
+                    Toast.makeText(getApplicationContext(), "No empty fields allowed",
+                            Toast.LENGTH_SHORT).show();
+                }else {
+                    CheckBox cb = findViewById(R.id.poll_not_anonymous);
+                    Poll newPoll;
+                    if (cb.isChecked()) {
+                        newPoll = new PollNotAnonymous(titleET.getText().toString(), questionET.getText().toString(), pollId);
+                    } else {
+                        newPoll = new Poll(titleET.getText().toString(), questionET.getText().toString(), pollId);
+                    }
+                    for (String option : options) {
+                        newPoll.addOption(option);
+                    }
+                    HashMap<String, Poll> polls = GlobalContainer.getPolls();
+                    Intent intent = new Intent(NewPollActivity.this, ChooseContactsActivity.class);
+                    intent.putExtra("pollId", newPoll.getId());
+                    Bundle b = new Bundle();
+                    b.putSerializable("poll", newPoll);
+                    intent.putExtras(b);
+                    intent.putExtra("type", Integer.toString(newPoll.getType()));
+                    startActivity(intent);
                 }
-                HashMap<String, Poll> polls = GlobalContainer.getPolls();
-                Intent intent = new Intent(NewPollActivity.this,ChooseContactsActivity.class);
-                intent.putExtra("pollId", newPoll.getId());
-                Bundle b = new Bundle();
-                b.putSerializable("poll", newPoll);
-                intent.putExtras(b);
-                intent.putExtra("type", Integer.toString(newPoll.getType()));
-                startActivity(intent);
             }
         });
         Button add = (Button) findViewById(R.id.add);

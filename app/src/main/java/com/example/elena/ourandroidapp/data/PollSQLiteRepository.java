@@ -31,6 +31,10 @@ public class PollSQLiteRepository {
         db = getWritableDatabase(context);
     }
 
+    public void truncateContactsTable(){
+        db.delete(ContactEntry.TABLE_NAME, null, null);
+    }
+
     public void truncateAll4Tables(){
         db.delete(VoteEntry.TABLE_NAME, null, null);
         db.delete(OptionEntry.TABLE_NAME, null, null);
@@ -61,18 +65,21 @@ public class PollSQLiteRepository {
                 new Object[]{poll.getOptionId(), poll.getTitle(), poll.getQuestion()});
 */
 
-        ContentValues poll_values = new ContentValues();
-        poll_values.put(PollEntry._ID, poll.getId());
-        poll_values.put(PollEntry.POLL_NAME_CLMN, poll.getTitle());
-        poll_values.put(PollEntry.POLL_QUESTION_CLMN, poll.getQuestion());
-        poll_values.put(PollEntry.POLL_CHANGED_CLMN, poll.getChanged());
-        poll_values.put(PollEntry.POLL_ALREADY_VOTED_CLMN, poll.checkIfVoted());
-        if (poll instanceof PollNotAnonymous) {
-            poll_values.put(PollEntry.POLL_ANON_CLMN, 0);
-        } else {poll_values.put(PollEntry.POLL_ANON_CLMN, 1);}
-        db.insert(PollEntry.TABLE_NAME, null, poll_values);
 
-        for (Option opt : poll.getOptions().values()) {
+            ContentValues poll_values = new ContentValues();
+            poll_values.put(PollEntry._ID, poll.getId());
+            poll_values.put(PollEntry.POLL_NAME_CLMN, poll.getTitle());
+            poll_values.put(PollEntry.POLL_QUESTION_CLMN, poll.getQuestion());
+            poll_values.put(PollEntry.POLL_CHANGED_CLMN, poll.getChanged());
+            poll_values.put(PollEntry.POLL_ALREADY_VOTED_CLMN, poll.checkIfVoted());
+            if (poll instanceof PollNotAnonymous) {
+                poll_values.put(PollEntry.POLL_ANON_CLMN, 0);
+            } else {
+                poll_values.put(PollEntry.POLL_ANON_CLMN, 1);
+            }
+            db.insert(PollEntry.TABLE_NAME, null, poll_values);
+
+            for (Option opt : poll.getOptions().values()) {
             /*db.execSQL("INSERT OR REPLACE INTO " + OptionEntry.TABLE_NAME + " ("  +
                             OptionEntry.OPTION_TEXT_CLMN + ", " +
                             OptionEntry.POLL_ID_CLMN + ", " +
@@ -80,33 +87,35 @@ public class PollSQLiteRepository {
                             "VALUES(?" + "," + "?" + "," + "?)",
                     new Object[]{opt.getText(), poll.getOptionId(), opt.getVotesCount()});
                     */
-            ContentValues option_values = new ContentValues();
-            option_values.put(OptionEntry.OPTION_TEXT_CLMN, opt.getText());
-            option_values.put(OptionEntry.POLL_ID_CLMN, poll.getId());
-            option_values.put(OptionEntry.VOTES_COUNT_CLMN, opt.getVotesCount());
-            db.insert(OptionEntry.TABLE_NAME, null, option_values);
-            if(opt instanceof PollNotAnonymous.OptionNotAnonymous) {
-                Cursor cursor=getOptionCursor(poll.getId(), opt.getText());
-                int idx =cursor.getColumnIndex(OptionEntry._ID);
-                cursor.moveToFirst();
-                String option_id = cursor.getString( idx );
-                ArrayList<String> voted = ((OptionNotAnonymous)opt).getVoted();
-                for (String phoneofvoted : voted) {
-                    db.execSQL("INSERT OR REPLACE INTO " + VoteEntry.TABLE_NAME + " (" +
-                                    VoteEntry.OPTION_ID_CLMN + ", " +
-                                    VoteEntry.PHONE_NUMBER_CLMN + ") " +
-                                    "VALUES(?" + "," + "?)",
-                            new Object[]{option_id, phoneofvoted});
+                ContentValues option_values = new ContentValues();
+                option_values.put(OptionEntry.OPTION_TEXT_CLMN, opt.getText());
+                option_values.put(OptionEntry.POLL_ID_CLMN, poll.getId());
+                option_values.put(OptionEntry.VOTES_COUNT_CLMN, opt.getVotesCount());
+                db.insert(OptionEntry.TABLE_NAME, null, option_values);
+                if (opt instanceof PollNotAnonymous.OptionNotAnonymous) {
+                    Cursor cursor = getOptionCursor(poll.getId(), opt.getText());
+                    int idx = cursor.getColumnIndex(OptionEntry._ID);
+                    cursor.moveToFirst();
+                    String option_id = cursor.getString(idx);
+                    ArrayList<String> voted = ((OptionNotAnonymous) opt).getVoted();
+                    for (String phoneofvoted : voted) {
+                        db.execSQL("INSERT OR REPLACE INTO " + VoteEntry.TABLE_NAME + " (" +
+                                        VoteEntry.OPTION_ID_CLMN + ", " +
+                                        VoteEntry.PHONE_NUMBER_CLMN + ") " +
+                                        "VALUES(?" + "," + "?)",
+                                new Object[]{option_id, phoneofvoted});
+                    }
+                    cursor.close();
                 }
             }
-        }
 
-        for (String participant: poll.getParticipants()) {
-            ContentValues participant_values = new ContentValues();
-            participant_values.put(ParticipantEntry.PHONE_NUMBER_CLMN, participant);
-            participant_values.put(ParticipantEntry.POLL_ID_CLMN, poll.getId());
-            db.insert(ParticipantEntry.TABLE_NAME, null, participant_values);
-        }
+            for (String participant : poll.getParticipants()) {
+                ContentValues participant_values = new ContentValues();
+                participant_values.put(ParticipantEntry.PHONE_NUMBER_CLMN, participant);
+                participant_values.put(ParticipantEntry.POLL_ID_CLMN, poll.getId());
+                db.insert(ParticipantEntry.TABLE_NAME, null, participant_values);
+            }
+
     }
 
     public void addContact(String name, String phoneNumber){
@@ -143,6 +152,7 @@ public class PollSQLiteRepository {
         int votedCountInc = ++ votedCount;
         ContentValues values = new ContentValues();
         values.put(OptionEntry.VOTES_COUNT_CLMN, votedCountInc);
+        cursor.close();
 
         db.update(OptionEntry.TABLE_NAME, values, "poll_id =? and option_text=?", new String[] { poll_id, option_text } );
     }
@@ -162,6 +172,7 @@ public class PollSQLiteRepository {
         values.put(VoteEntry.OPTION_ID_CLMN, option_id);
         values.put(VoteEntry.PHONE_NUMBER_CLMN, phoneofvoted);
         db.insert(VoteEntry.TABLE_NAME, null, values);
+        cursor.close();
 
 
     }
@@ -230,6 +241,7 @@ public class PollSQLiteRepository {
             String name = cc.getName();
             contacts.put(name, c);
         }
+        cc.close();
         return contacts;
     }
 
@@ -260,15 +272,19 @@ public class PollSQLiteRepository {
                         //String text = vc.getOptionText();
                                 //String pol = vc.getPollId();
                     }
+                    vc.close();
                     }
                    p.addOption(o);
                 }
+                oc.close();
                 ParticipantCursor partc = findParticipants(pc.getId());
             while (partc.moveToNext()) {
             p.addParticipant(partc.getNumber());
             }
+            partc.close();
                 polls.put(p.getId(), p);
             }
+            pc.close();
 
 return polls;
         }

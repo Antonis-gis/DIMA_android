@@ -1,17 +1,22 @@
 package com.example.elena.ourandroidapp.activities;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Pair;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ListView;
 
 import com.example.elena.ourandroidapp.R;
@@ -33,6 +38,7 @@ import com.example.elena.ourandroidapp.adapters.ContactArrayAdapter;
 
 public class ChooseContactsActivity extends AppCompatActivity {
     ListView contactsListView;
+    ContactArrayAdapter contactsArrayAdapterforRefresh;
     final List<Pair<Boolean, Contact>> contacts=new ArrayList<>(GlobalContainer.getContactsForAdapter());
     public static final Random RANDOM = new Random();
     public static final String BACKEND_ACTION_SUBSCRIBE = "SUBSCRIBE";
@@ -104,6 +110,7 @@ public class ChooseContactsActivity extends AppCompatActivity {
 
 
         final ContactArrayAdapter contactsArrayAdapter = new ContactArrayAdapter(this, contacts);
+        contactsArrayAdapterforRefresh=contactsArrayAdapter;
         contactsListView.setAdapter(contactsArrayAdapter);
 
         contactsListView.
@@ -125,20 +132,90 @@ public class ChooseContactsActivity extends AppCompatActivity {
                         //contacts.set(i, new Pair(newBool, contacts.get(i).second));
                     }
                 });
+//this was needed since i wanted it to be possible to check box by either clicking on box or clicking on name
+        contactsListView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                for (int i=0; i<contactsListView.getChildCount(); i++) {
+                    final int idx = i;
+                    CheckBox cb = contactsListView.getChildAt(idx).findViewById(R.id.checkBox);
+                    cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+                        @Override
+                        public void onCheckedChanged(CompoundButton buttonView,
+                                                     boolean isChecked) {
+
+                            if (isChecked) {
+                                contacts.set(idx, new Pair(true, contacts.get(idx).second));
+                            } else {
+                                contacts.set(idx, new Pair(false, contacts.get(idx).second));
+                            }
+                        }
+                    });
+                }
+
+                contactsListView.removeOnLayoutChangeListener(this);
+            }
+        });
 
 
 
+    }
+    private void refresh() {
+        DatabaseService mCheckService = DatabaseService.getInstance();
+        HashMap<String, Contact> contactsToCheck=new HashMap<>();
+        Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,null,null, null);
+        while (phones.moveToNext())
+        {
+            String name=phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+            String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            Contact c = new Contact(name, phoneNumber);
+            Contact value = contactsToCheck.get(name);
+            if (value != null) {
+                System.err.println(value.getName());
+            }
+
+            contactsToCheck.put(phoneNumber, c);
+
+        }
+        DatabaseService.ContactsCallback callback = new DatabaseService.ContactsCallback() {
+            public void onLoad() {
+                contacts.clear();
+                contacts.addAll(new ArrayList<>(GlobalContainer.getContactsForAdapter()));
+                contactsArrayAdapterforRefresh.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+        };
+        mCheckService.getTheOnesInDatabase(contactsToCheck, callback);
+        phones.close();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.mymenu, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
+            case R.id.refresh:
+                refresh();
+                return true;
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
+
         }
         return super.onOptionsItemSelected(item);
     }
+
+
 
 }

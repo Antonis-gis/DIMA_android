@@ -33,6 +33,11 @@ public class GlobalContainer {
 
         polls=new HashMap<>();
     }
+
+    public static synchronized void emptyContacts(){
+
+        contacts=new HashMap<>();
+    }
     public static synchronized void emptyRefs(){
         pollRefs=new HashMap<>();
     }

@@ -504,9 +504,19 @@ public DatabaseReference getRefWithSingleEventListener(Poll poll, final Callback
     }
 
     public void getTheOnesInDatabase(HashMap<String, Contact> contactsToCheck, final ContactsCallback callback) {
+        final PollSQLiteRepository repository = new PollSQLiteRepository(ApplicationContextProvider.getContext());
+        repository.truncateContactsTable();
+        int badCount =0;
+        for(Contact c : contactsToCheck.values()) {
+            String phone = c.getPhoneNumber();
+            if (phone.contains(".") || phone.contains("$") || phone.contains("[") || phone.contains("]") || phone.contains("#") || phone.contains("\\")) {
+                badCount++;
+            }
+        }
+        GlobalContainer.emptyContacts();
         DatabaseReference rootRef = mDatabase.child("users");
         final ArrayList<Integer> counter = new ArrayList<>();
-        final int count = contactsToCheck.size();
+        final int count = contactsToCheck.size() - badCount;
         Set<Map.Entry<String,Contact>> set = contactsToCheck.entrySet();
         for (Map.Entry<String, Contact> entry : contactsToCheck.entrySet()) {
             final Map.Entry<String, Contact> finalEntry = entry;
@@ -520,7 +530,7 @@ public DatabaseReference getRefWithSingleEventListener(Poll poll, final Callback
                             // run some code
                             HashMap<String, Contact> contacts = GlobalContainer.getContacts();
                             contacts.put(finalEntry.getKey(), finalEntry.getValue());
-                            PollSQLiteRepository repository = new PollSQLiteRepository(ApplicationContextProvider.getContext());
+                            //PollSQLiteRepository repository = new PollSQLiteRepository(ApplicationContextProvider.getContext());
                             repository.deleteContact(finalEntry.getKey());
                             repository.addContact(finalEntry.getValue().getName(), finalEntry.getValue().getPhoneNumber());
 

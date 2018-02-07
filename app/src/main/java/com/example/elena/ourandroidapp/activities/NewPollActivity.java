@@ -55,20 +55,7 @@ public class NewPollActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*
-                String  SENDER_ID="656945745490";
-                //String msgId = UUID.randomUUID().toString();;
-                FirebaseMessaging fm = FirebaseMessaging.getInstance();
 
-                Gson gson =new Gson();
-                String serialized = gson.toJson(receipients);
-                fm.send(new RemoteMessage.Builder(SENDER_ID + "@gcm.googleapis.com")
-                        .setMessageId(Integer.toString(RANDOM.nextInt()))
-                        .addData("action", BACKEND_ACTION_SUBSCRIBE)
-                        .addData("poll_id", newPollId)
-                        .addData("recipient", serialized)
-                        .build());
-                        */
 
                 String pollId = UUID.randomUUID().toString().replaceAll("-", "");
                 int idx = options.size()-1;

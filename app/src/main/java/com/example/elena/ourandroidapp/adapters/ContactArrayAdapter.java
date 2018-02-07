@@ -6,9 +6,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.example.elena.ourandroidapp.R;
+import com.example.elena.ourandroidapp.activities.ChooseContactsActivity;
 import com.example.elena.ourandroidapp.model.Contact;
 import com.example.elena.ourandroidapp.model.Poll;
 
@@ -18,16 +21,19 @@ import java.util.List;
  * Created by elena on 25/11/17.
  */
 
-public class ContactArrayAdapter extends ArrayAdapter<Pair<Boolean, Contact>> {
-    public ContactArrayAdapter(Context context, List<Pair<Boolean, Contact>> objects) {
+public class ContactArrayAdapter extends ArrayAdapter<ChooseContactsActivity.BoolContactEntry> {
+    Context context;
+    public ContactArrayAdapter(Context context, List<ChooseContactsActivity.BoolContactEntry> objects) {
         super(context, 0, objects);
+        this.context=context;
+
     }
     @Override
-    public View getView(int position, View convertView, ViewGroup viewGroup){
-
-        Pair<Boolean, Contact> pair = getItem(position);
-        Contact contact = pair.second;
-
+    public View getView(final int position, View convertView, final ViewGroup viewGroup){
+        final ChooseContactsActivity.BoolContactEntry cb = getItem(position);
+        ///Pair<Boolean, Contact> pair = getItem(position);
+        //final Contact contact = pair.second;
+final Contact contact=cb.getContact();
         if (convertView == null){
             LayoutInflater layoutInflater = (LayoutInflater) getContext().
                     getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -37,23 +43,39 @@ public class ContactArrayAdapter extends ArrayAdapter<Pair<Boolean, Contact>> {
             convertView.setTag(new  ContactViewHolder(convertView));
         }
 
-         ContactViewHolder viewHolder = ( ContactViewHolder) convertView.getTag();
+         final ContactViewHolder viewHolder = ( ContactViewHolder) convertView.getTag();
 
         //viewHolder.name.setText(contact.getName());
         viewHolder.cName.setText(contact.getName());
+final View finalView=convertView;
+        viewHolder.cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView,
+                                         boolean isChecked) {
+
+                //viewHolder.cName.performClick();
+                if(isChecked){
+                    cb.setChoosen(true);
+                }else{
+                    cb.setChoosen(false);
+
+                }
+            }
+        });
+
 
         return convertView;
     }
     static class ContactViewHolder {
-
+CheckBox cb;
 
         TextView cName;
 
         public  ContactViewHolder(View view){
             cName = (TextView) view.
                     findViewById(R.id.contact_name);
-            //name = (TextView) view.
-                //    findViewById(R.id.pollQuestionTextView);
+            cb =  view.findViewById(R.id.checkBox);
         }
 
     }

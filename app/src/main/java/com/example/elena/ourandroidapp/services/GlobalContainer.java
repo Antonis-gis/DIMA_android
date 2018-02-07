@@ -3,6 +3,7 @@ package com.example.elena.ourandroidapp.services;
 import android.util.Pair;
 
 import com.example.elena.ourandroidapp.ApplicationContextProvider;
+import com.example.elena.ourandroidapp.activities.ChooseContactsActivity;
 import com.example.elena.ourandroidapp.data.PollSQLiteRepository;
 import com.example.elena.ourandroidapp.model.Binding;
 import com.example.elena.ourandroidapp.model.Contact;
@@ -56,6 +57,18 @@ public class GlobalContainer {
         for (Contact c : contacts.values()){
             Pair<Boolean, Contact> pair= new Pair<>(false, c);
             pairs.add(pair);
+        }
+
+        return pairs;
+    }
+
+    public static synchronized ArrayList<ChooseContactsActivity.BoolContactEntry> getContactsForAdapter2(){
+        ArrayList<ChooseContactsActivity.BoolContactEntry> pairs = new ArrayList<>();
+        if (contacts == null)
+            contacts = repository.returnContacts();
+        for (Contact c : contacts.values()){
+            ChooseContactsActivity.BoolContactEntry bc= new ChooseContactsActivity.BoolContactEntry(false, c);
+            pairs.add(bc);
         }
 
         return pairs;

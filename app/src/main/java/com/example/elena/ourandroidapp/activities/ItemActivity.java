@@ -58,7 +58,7 @@ public class ItemActivity extends AppCompatActivity {
         //final ArrayList<Poll.Option> options = new ArrayList<>(poll.getOptions().values());
         options.addAll(poll.getOptions().values());
         int numberOfParticipants = poll.getParticipants().size();
-        final Option_Adapter optionsArrayAdapter = new Option_Adapter(this, options, poll);
+        final Option_Adapter optionsArrayAdapter = new Option_Adapter(this, options, poll.getId());
         optionsListView = findViewById(R.id.options_list);
         optionsListView.setAdapter(optionsArrayAdapter);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);

@@ -45,8 +45,28 @@ public class MainActivity extends AppCompatActivity {
     HashMap<String, Binding> bindings=new HashMap<>(); //since we need to find the poll it regerences when we remove it
     final List<Poll> polls=new ArrayList<>(GlobalContainer.getPolls().values());
     Boolean init = true;
+    PollArrayAdapter pollsArrayAdapterForCallback;
+    final DatabaseService.Callback callback = new DatabaseService.Callback() {//we need somehow find right poll and update its view
+        @Override
+        public void onLoad(String poll_id) {
 
+            for(Poll p:polls){
+                if(p.getId().equals(poll_id)){
+                    int idx = polls.indexOf(p);
+                    p=GlobalContainer.getPolls().get(poll_id);
+                    polls.set(idx, p);
 
+                }
+            }
+            //here the notifications on poll items should be set
+            pollsArrayAdapterForCallback.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onFailure() {
+
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,28 +80,8 @@ public class MainActivity extends AppCompatActivity {
 // Get the extras (if there are any)
         Bundle extras = intent.getExtras();
         final PollArrayAdapter pollsArrayAdapter = new PollArrayAdapter(this, polls);
+        pollsArrayAdapterForCallback=pollsArrayAdapter;
 
-        final DatabaseService.Callback callback = new DatabaseService.Callback() {//we need somehow find right poll and update its view
-            @Override
-            public void onLoad(String poll_id) {
-
-                for(Poll p:polls){
-                    if(p.getId().equals(poll_id)){
-                        int idx = polls.indexOf(p);
-                        p=GlobalContainer.getPolls().get(poll_id);
-                        polls.set(idx, p);
-
-                    }
-                }
-                //here the notifications on poll items should be set
-                pollsArrayAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onFailure() {
-
-            }
-        };
         if (extras != null) {
             if (extras.containsKey("isNewLogin")) {
                 boolean isNew = extras.getBoolean("isNewLogin", false);
@@ -135,24 +135,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-/*
-                String  SENDER_ID="656945745490";
-                //String msgId = UUID.randomUUID().toString();;
-                FirebaseMessaging fm = FirebaseMessaging.getPolls();
-                ArrayList<String> receipients = new ArrayList<>();
-                receipients.add("9876543210");
-                receipients.add("1234567890");
-                Gson gson =new Gson();
-                String serialized = gson.toJson(receipients);
-                fm.send(new RemoteMessage.Builder(SENDER_ID + "@gcm.googleapis.com")
-                        .setMessageId(Integer.toString(RANDOM.nextInt()))
-                        .addData("action", BACKEND_ACTION_SUBSCRIBE)
-                        .addData("message","ping")
-                        .addData("recipient", serialized)
-                        .build());
-*/
-                //PollSQLiteRepository repository = new PollSQLiteRepository(ApplicationContextProvider.getContext());
-                //repository.deletePoll("6");
                 clearBindings();
                 HashMap<String, Poll> polls = GlobalContainer.getPolls();
                 Intent intent = new Intent(MainActivity.this, NewPollActivity.class);
@@ -166,20 +148,8 @@ public class MainActivity extends AppCompatActivity {
 //basically this activity should react to:
         //1. onChange from firebase database when new vote is added
         //2. message from server that new poll is added (see my firebase messaging service)
-        DatabaseService mPollService = DatabaseService.getInstance();
-
-
-
-
-        //ArrayList<DatabaseReference> dRefs = mPollService.getRefsWithSharedCallbackOnAllLoaded(callback); //this is just to save references with attached eventListeners
-
-
-        //mPollService.linkAllRefsForGlobalContainer(callback);//this is for globalContainer updates
-
 
         pollsListView = findViewById(R.id.pollsList);
-
-
 
         pollsListView.setAdapter(pollsArrayAdapter);
         pollsListView.setLongClickable(true);
@@ -287,8 +257,9 @@ public class MainActivity extends AppCompatActivity {
                 //polls.add(GlobalContainer.getPolls().get(poll_id));
                 polls.clear();
                 polls.addAll(GlobalContainer.getPolls().values());
-
-
+            DatabaseService mInitService = DatabaseService.getInstance();
+            Binding b = mInitService.getRefWithListener(GlobalContainer.getPolls().get(poll_id), callback, false);
+            bindings.put(poll_id,b);
                 ((BaseAdapter) pollsListView.getAdapter()).notifyDataSetChanged();
                 //EditText edit =(EditText) findViewById(R.id.editText4);
                 //edit.setText(intent.getExtras().getString("message"));

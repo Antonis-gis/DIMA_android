@@ -13,11 +13,13 @@ import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.elena.ourandroidapp.R;
 import com.example.elena.ourandroidapp.model.Contact;
@@ -39,7 +41,8 @@ import com.example.elena.ourandroidapp.adapters.ContactArrayAdapter;
 public class ChooseContactsActivity extends AppCompatActivity {
     ListView contactsListView;
     ContactArrayAdapter contactsArrayAdapterforRefresh;
-    final List<Pair<Boolean, Contact>> contacts=new ArrayList<>(GlobalContainer.getContactsForAdapter());
+    //final List<Pair<Boolean, Contact>> contacts=new ArrayList<>(GlobalContainer.getContactsForAdapter());
+    final List<BoolContactEntry> contacts=new ArrayList<>(GlobalContainer.getContactsForAdapter2());
     public static final Random RANDOM = new Random();
     public static final String BACKEND_ACTION_SUBSCRIBE = "SUBSCRIBE";
     @Override
@@ -51,7 +54,6 @@ public class ChooseContactsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Intent intent = getIntent();
         final String id = intent.getStringExtra("pollId");
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,10 +75,18 @@ public class ChooseContactsActivity extends AppCompatActivity {
                         */
                 ///also here we should save poll to repository and to globalContainer (maybe it is not enough)
                 final ArrayList<String> receipients = new ArrayList<>();
+                /*
                 for (Pair<Boolean, Contact> ct : contacts){
 
                     if(ct.first){
                         receipients.add(ct.second.getPhoneNumber());
+                    }
+                }
+                */
+                for (BoolContactEntry ct : contacts){
+
+                    if(ct.getChoosen()){
+                        receipients.add(ct.getContact().getPhoneNumber());
                     }
                 }
                 HashMap<String, Poll> polls2 = GlobalContainer.getPolls();
@@ -120,6 +130,7 @@ public class ChooseContactsActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView,
                                             View view, int i, long l) {
+                        /*
                         CheckBox cb = view.findViewById(R.id.checkBox);
                         if(cb.isChecked()){
                             cb.setChecked(false);
@@ -129,12 +140,33 @@ public class ChooseContactsActivity extends AppCompatActivity {
                             contacts.set(i, new Pair(true, contacts.get(i).second));
 
                         }
+                        */
+/*
+                            CheckBox cb = view.findViewById(R.id.checkBox);
+                            if (cb.isChecked()) {
+                                contacts.set(i, new Pair(true, contacts.get(i).second));
+                            } else {
+                                contacts.set(i, new Pair(false, contacts.get(i).second));
+                            }
+                        */
+
+                            CheckBox cb = view.findViewById(R.id.checkBox);
+                            if(cb.isChecked()){
+                                cb.setChecked(false);
+                                contacts.get(i).setChoosen(false);
+                            }else{
+                                cb.setChecked(true);
+                                contacts.get(i).setChoosen(true);
+
+                            }
+
                         //String phoneNumber = contacts.get(i).second.getPhoneNumber();
                         //Boolean newBool = !contacts.get(i).first;
                         //contacts.set(i, new Pair(newBool, contacts.get(i).second));
                     }
                 });
 //this was needed since i wanted it to be possible to check box by either clicking on box or clicking on name
+/*
         contactsListView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
@@ -154,11 +186,13 @@ public class ChooseContactsActivity extends AppCompatActivity {
                             }
                         }
                     });
+
                 }
 
                 contactsListView.removeOnLayoutChangeListener(this);
             }
         });
+*/
 
 
 
@@ -183,7 +217,7 @@ public class ChooseContactsActivity extends AppCompatActivity {
         DatabaseService.ContactsCallback callback = new DatabaseService.ContactsCallback() {
             public void onLoad() {
                 contacts.clear();
-                contacts.addAll(new ArrayList<>(GlobalContainer.getContactsForAdapter()));
+                contacts.addAll(new ArrayList<>(GlobalContainer.getContactsForAdapter2()));
                 contactsArrayAdapterforRefresh.notifyDataSetChanged();
             }
 
@@ -195,6 +229,8 @@ public class ChooseContactsActivity extends AppCompatActivity {
         mCheckService.getTheOnesInDatabase(contactsToCheck, callback);
         phones.close();
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -218,6 +254,28 @@ public class ChooseContactsActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public static class BoolContactEntry{
+        Boolean chosen;
+        Contact contact;
+        public BoolContactEntry(Pair<Boolean, Contact> bc){
+            this.chosen=bc.first;
+            this.contact=bc.second;
+        }
+
+        public BoolContactEntry(Boolean b , Contact c){
+            this.chosen=b;
+            this.contact=c;
+        }
+        public void  setChoosen(boolean b){
+           this.chosen=b;
+        }
+        public boolean  getChoosen(){
+            return chosen;
+        }
+        public Contact  getContact(){
+            return contact;
+        }
+    }
 
 
 }

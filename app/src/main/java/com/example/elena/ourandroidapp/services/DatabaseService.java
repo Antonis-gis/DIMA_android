@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import com.example.elena.ourandroidapp.ApplicationContextProvider;
 import com.example.elena.ourandroidapp.data.PollSQLiteRepository;
@@ -131,7 +132,7 @@ public class DatabaseService {
 
 */
 
-    public Binding getRefWithListener(Poll poll, final Callback callback) {
+    public Binding getRefWithListener(Poll poll, final Callback callback, final boolean notifyOnOwnVote) {
         String query = "polls/" + poll.getId();
         DatabaseReference pollRef = FirebaseDatabase.getInstance().getReference(query);
         ValueEventListener postListener = new ValueEventListener() {
@@ -183,10 +184,13 @@ public class DatabaseService {
                     repository.add(newPoll);
                     GlobalContainer.getPolls().put(poll.getId(), newPoll);//this is so we want call onDataChange twice
 
-                    if(newVote){
+                    if(newVote) {
                         newPoll.setChanged(1);//what if we are in itemactivity?
-                        callback.onLoad(newPoll.getId());
-                    }
+                        if(newVote||notifyOnOwnVote) {
+                            callback.onLoad(newPoll.getId());
+                        }
+                    }////how to appropriatily call callback??
+
 
                 }
 
@@ -336,7 +340,7 @@ public DatabaseReference getRefWithSingleEventListener(Poll poll, final Callback
                 public void onFailure(){
                     callback.onFailure();
                 }
-            });
+            }, false);
             dRefs.add(b);
             }
             return dRefs;
@@ -622,6 +626,42 @@ public interface Callback {
         String mPhoneNumber = auth.getCurrentUser().getPhoneNumber();
         DatabaseReference rootRef = mDatabase.child("users").child(mPhoneNumber).child("poll_ids");
         return rootRef;
+    }
+
+    public void deletePollForUser(String pollId){
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        String mPhoneNumber = auth.getCurrentUser().getPhoneNumber();
+        DatabaseReference ref = mDatabase.child("users").child(mPhoneNumber).child("poll_ids");
+        Query usersQuery = ref.orderByKey().equalTo(pollId);
+
+        usersQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot appleSnapshot: dataSnapshot.getChildren()) {
+                    appleSnapshot.getRef().removeValue();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+
+        DatabaseReference pollRef = mDatabase.child("polls").child(pollId).child("participants");
+        Query pollsQuery = pollRef.orderByValue().equalTo(mPhoneNumber);
+
+        pollsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot appleSnapshot: dataSnapshot.getChildren()) {
+                    appleSnapshot.getRef().removeValue();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
     }
 
 }

@@ -2,10 +2,12 @@ package com.example.elena.ourandroidapp.activities;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -40,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String BACKEND_ACTION_SUBSCRIBE = "SUBSCRIBE";
 
     ListView pollsListView;
-    ArrayList<Binding> bindings=new ArrayList<>();
+    HashMap<String, Binding> bindings=new HashMap<>(); //since we need to find the poll it regerences when we remove it
     final List<Poll> polls=new ArrayList<>(GlobalContainer.getPolls().values());
     Boolean init = true;
 
@@ -92,8 +94,9 @@ public class MainActivity extends AppCompatActivity {
 */
                         DatabaseService mInitService = DatabaseService.getInstance();
                         for (Poll p : GlobalContainer.getPolls().values()){
-                            Binding b = mInitService.getRefWithListener(p, callback);
-                            bindings.add(b);
+                            Binding b = mInitService.getRefWithListener(p, callback, false);
+                            bindings.put(p.getId(),b);
+                            //bindings.add(b);
                         }
                         GlobalContainer.emptyRefs();
 
@@ -114,9 +117,11 @@ public class MainActivity extends AppCompatActivity {
         } else{
             clearBindings();
             DatabaseService mInitService = DatabaseService.getInstance();
+            HashMap<String, Poll> polls3 = GlobalContainer.getPolls();
             for (Poll p : GlobalContainer.getPolls().values()){
-                Binding b = mInitService.getRefWithListener(p, callback);
-                bindings.add(b);
+                Binding b = mInitService.getRefWithListener(p, callback, false);
+                //bindings.add(b);
+                bindings.put(p.getId(), b);
             }
         }
 
@@ -177,7 +182,49 @@ public class MainActivity extends AppCompatActivity {
 
 
         pollsListView.setAdapter(pollsArrayAdapter);
+        pollsListView.setLongClickable(true);
+        pollsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
+                //Do your tasks here
+                final String pollId = polls.get(position).getId();
 
+                AlertDialog.Builder alert = new AlertDialog.Builder(
+                        MainActivity.this);
+                alert.setTitle("Alert!!");
+                alert.setMessage("Are you sure to delete poll");
+                alert.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //do your work here
+                        GlobalContainer.getPolls().remove(pollId);
+                        PollSQLiteRepository repository = new PollSQLiteRepository(ApplicationContextProvider.getContext());
+                        repository.deletePoll(pollId);
+                        DatabaseService mPollService = DatabaseService.getInstance();
+                        mPollService.deletePollForUser(pollId);
+                        Binding b =bindings.get(pollId);
+                        b.getRef().removeEventListener(b.getListener());
+                        polls.clear();
+                        polls.addAll(GlobalContainer.getPolls().values());
+                        pollsArrayAdapter.notifyDataSetChanged();
+                        dialog.dismiss();
+
+                    }
+                });
+                alert.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.dismiss();
+                    }
+                });
+
+                alert.show();
+
+                return true;
+            }
+        });
         pollsListView.
             setOnItemClickListener(new AdapterView.OnItemClickListener() {
         @Override
@@ -203,10 +250,12 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+
     }
 
     protected void clearBindings(){
-        for(Binding b : bindings){
+        for(Binding b : bindings.values()){
             b.getRef().removeEventListener(b.getListener());
         }
         bindings.clear();

@@ -33,7 +33,8 @@ import java.util.HashMap;
 public class ItemActivity extends AppCompatActivity {
     Binding b;
     ListView optionsListView;
-
+    String poll_id;
+    final ArrayList<Poll.Option> options = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,13 +46,16 @@ public class ItemActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         final String id = intent.getStringExtra("pollId");
+        poll_id=id;
         final Poll poll = GlobalContainer.getPolls().get(id);
+        getSupportActionBar().setTitle(poll.getTitle());
         if(poll.checkIfVoted()==1){
             TextView alreadyVotedText = findViewById(R.id.already_voted_string);
             alreadyVotedText.setVisibility(TextView.VISIBLE);
 
         }
-        final ArrayList<Poll.Option> options = new ArrayList<>(poll.getOptions().values());
+        //final ArrayList<Poll.Option> options = new ArrayList<>(poll.getOptions().values());
+        options.addAll(poll.getOptions().values());
         int numberOfParticipants = poll.getParticipants().size();
         final Option_Adapter optionsArrayAdapter = new Option_Adapter(this, options, numberOfParticipants);
         optionsListView = findViewById(R.id.options_list);
@@ -61,7 +65,9 @@ public class ItemActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 mPollService.sendVote(id, GlobalContainer.getPolls().get(id).getOptions().get("try1"));
+
                 System.err.println(GlobalContainer.getPolls().get(id).checkIfVoted());
+                //optionsArrayAdapter.notifyDataSetChanged();
 
             }
         });
@@ -131,7 +137,10 @@ public class ItemActivity extends AppCompatActivity {
         DatabaseService.Callback callback = new DatabaseService.Callback() {
             @Override
             public void onLoad(String poll_id) {
-
+                GlobalContainer.getPolls().get(poll_id).setChanged(0);
+                options.clear();
+                options.addAll(GlobalContainer.getPolls().get(poll_id).getOptions().values());
+optionsArrayAdapter.notifyDataSetChanged();
                 //here the update of the view in case of new vote should happen
             }
 
@@ -147,7 +156,7 @@ public class ItemActivity extends AppCompatActivity {
         TextView questionView = findViewById(R.id.question);
         questionView.setText(poll.getQuestion());
 
-        b = mPollService.getRefWithListener(GlobalContainer.getPolls().get(id), callback);
+        b = mPollService.getRefWithListener(GlobalContainer.getPolls().get(id), callback, true);
 
 
             }

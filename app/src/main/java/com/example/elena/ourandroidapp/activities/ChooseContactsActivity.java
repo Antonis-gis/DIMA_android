@@ -96,9 +96,11 @@ public class ChooseContactsActivity extends AppCompatActivity {
                     mPollService.writeNewPollToUser(receipient, p.getId());
                     p.addParticipant(receipient);
                 }
-                mPollService.writeNewPoll(p);
                 FirebaseAuth auth = FirebaseAuth.getInstance();
                 String mPhoneNumber = auth.getCurrentUser().getPhoneNumber();
+                p.addParticipant(mPhoneNumber);
+                mPollService.writeNewPoll(p);
+
                 mPollService.writeNewPollToUser(mPhoneNumber, p.getId());
 
                 Intent intent = new Intent(ChooseContactsActivity.this, MainActivity.class);

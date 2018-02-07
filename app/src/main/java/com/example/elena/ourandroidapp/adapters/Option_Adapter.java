@@ -49,7 +49,7 @@ public class Option_Adapter extends ArrayAdapter<Poll.Option> {
         if(numberOfParticipants==0){
             numberOfParticipants=1;
         }
-        int optionPopularity = (option.getVotesCount()/numberOfParticipants)*100;
+        int optionPopularity = (int) (((float)option.getVotesCount()/numberOfParticipants)*100);
         viewHolder.mProgress.setProgress(optionPopularity);
         if(option instanceof PollNotAnonymous.OptionNotAnonymous){
             viewHolder.showBtn.setVisibility(View.VISIBLE);
@@ -62,7 +62,9 @@ public class Option_Adapter extends ArrayAdapter<Poll.Option> {
                     str+= voted_participant + ", ";
                 }
             }
-            str = str.substring(0, str.length() - 2);
+            if(str.length()>2) {
+                str = str.substring(0, str.length() - 2);
+            }
             viewHolder.votedText.setText(str);
         }
 

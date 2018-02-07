@@ -16,9 +16,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity
-            android:name=".activities.LaunchActivity"
-            android:theme="@android:style/Theme.NoDisplay"/>
 
 
         <activity android:name=".activities.LoginActivity">
@@ -64,16 +61,6 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.NewPollActivity" />
-        </activity>
-
-        <activity
-            android:name=".activities.TestActivity"
-            android:label="@string/title_activity_test"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:parentActivityName=".activities.MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MainActivity" />
         </activity>
 
         <activity

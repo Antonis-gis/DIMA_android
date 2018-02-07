@@ -20,6 +20,7 @@ import com.example.elena.ourandroidapp.adapters.NewOptionAdapter;
 import com.example.elena.ourandroidapp.adapters.Option_Adapter;
 import com.example.elena.ourandroidapp.data.PollSQLiteRepository;
 import com.example.elena.ourandroidapp.model.Binding;
+import com.example.elena.ourandroidapp.model.Contact;
 import com.example.elena.ourandroidapp.model.Poll;
 import com.example.elena.ourandroidapp.model.PollNotAnonymous;
 import com.example.elena.ourandroidapp.services.DatabaseService;
@@ -57,7 +58,7 @@ public class ItemActivity extends AppCompatActivity {
         //final ArrayList<Poll.Option> options = new ArrayList<>(poll.getOptions().values());
         options.addAll(poll.getOptions().values());
         int numberOfParticipants = poll.getParticipants().size();
-        final Option_Adapter optionsArrayAdapter = new Option_Adapter(this, options, numberOfParticipants);
+        final Option_Adapter optionsArrayAdapter = new Option_Adapter(this, options, poll);
         optionsListView = findViewById(R.id.options_list);
         optionsListView.setAdapter(optionsArrayAdapter);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -128,7 +129,7 @@ public class ItemActivity extends AppCompatActivity {
                                                        }
                     }
 
-                optionsListView.removeOnLayoutChangeListener(this);
+                //optionsListView.removeOnLayoutChangeListener(this);
             }
         });
 
@@ -151,9 +152,29 @@ optionsArrayAdapter.notifyDataSetChanged();
         };
 
 
-        TextView titleView = findViewById(R.id.title);
-        titleView.setText(poll.getTitle());
-        TextView questionView = findViewById(R.id.question);
+        TextView titleView = findViewById(R.id.question);
+        titleView.setText(poll.getQuestion());
+        TextView questionView = findViewById(R.id.participants);
+        String str ="";
+        for (String participant : poll.getParticipants()){
+
+                Contact c = GlobalContainer.getContacts().get(participant);
+                if(c!=null) {
+
+                    str += GlobalContainer.getContacts().get(participant).getName() + ", ";
+
+                } else {
+                    FirebaseAuth auth = FirebaseAuth.getInstance();
+                    String mPhoneNumber = auth.getCurrentUser().getPhoneNumber();
+                    mPhoneNumber=mPhoneNumber.replaceAll("\\s+","");
+                    if(participant.equals(mPhoneNumber)){
+                        str += "you, ";
+                    }
+                    else {
+                        str += participant + ", ";
+                    }
+                }
+            }
         questionView.setText(poll.getQuestion());
 
         b = mPollService.getRefWithListener(GlobalContainer.getPolls().get(id), callback, true);

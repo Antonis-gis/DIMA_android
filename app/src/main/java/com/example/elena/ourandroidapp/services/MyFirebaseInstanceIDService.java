@@ -35,9 +35,11 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
 
         //myRef.setValue("Hello, World!");
         FirebaseAuth auth = FirebaseAuth.getInstance();
+        if(auth.getCurrentUser() !=null){
         String mPhoneNumber = auth.getCurrentUser().getPhoneNumber();
         DatabaseService mDatabaseService = DatabaseService.getInstance();
         mDatabaseService.writeTokenData(mPhoneNumber, token);
+        }
     }
 
 }

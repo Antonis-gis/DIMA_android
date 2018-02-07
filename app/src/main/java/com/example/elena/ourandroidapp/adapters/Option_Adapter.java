@@ -25,9 +25,11 @@ import java.util.List;
 
 public class Option_Adapter extends ArrayAdapter<Poll.Option> {
     int numberOfParticipants;
-    public Option_Adapter(Context context, List<Poll.Option> objects, int numberOfParticipants) {
+    int voted;
+    public Option_Adapter(Context context, List<Poll.Option> objects, Poll poll) {
         super(context, 0, objects);
-        this.numberOfParticipants = numberOfParticipants;
+        this.numberOfParticipants = poll.getParticipants().size();
+        this.voted=poll.checkIfVoted();
     }
     @Override
     public View getView(final int position, View convertView, ViewGroup viewGroup){
@@ -58,23 +60,29 @@ public class Option_Adapter extends ArrayAdapter<Poll.Option> {
             for (String voted_participant : ((PollNotAnonymous.OptionNotAnonymous) option).getVoted()){
                 Contact c = GlobalContainer.getContacts().get(voted_participant);
                 if(c!=null) {
+
+                        str += GlobalContainer.getContacts().get(voted_participant).getName() + ", ";
+
+                } else {
                     FirebaseAuth auth = FirebaseAuth.getInstance();
                     String mPhoneNumber = auth.getCurrentUser().getPhoneNumber();
                     mPhoneNumber=mPhoneNumber.replaceAll("\\s+","");
-                    if(c.getPhoneNumber().equals(mPhoneNumber)){
+                    if(voted_participant.equals(mPhoneNumber)){
                         str += "you, ";
                     }
                     else {
-                        str += GlobalContainer.getContacts().get(voted_participant).getName() + ", ";
+                        str += voted_participant + ", ";
                     }
-                } else {
-                    str+= voted_participant + ", ";
                 }
             }
+
             if(str.length()>2) {
                 str = str.substring(0, str.length() - 2);
             }
             viewHolder.votedText.setText(str);
+        }
+        if(voted==1){
+            viewHolder.voteBtn.setVisibility(View.GONE);
         }
 
 
@@ -86,6 +94,7 @@ public class Option_Adapter extends ArrayAdapter<Poll.Option> {
         ProgressBar mProgress;
         TextView votedText;
         Button showBtn;
+        Button voteBtn;
 
         public  NewOptionViewHolder(View view, Option_Adapter newOptionAdapter){
             optionText = (TextView) view.
@@ -93,6 +102,7 @@ public class Option_Adapter extends ArrayAdapter<Poll.Option> {
             mProgress=view.findViewById(R.id.votes_progress_bar);
             votedText = view.findViewById(R.id.list_of_voted);
             showBtn = view.findViewById(R.id.show_vote_participants);
+            voteBtn = view.findViewById(R.id.vote_btn);
 
 
         }

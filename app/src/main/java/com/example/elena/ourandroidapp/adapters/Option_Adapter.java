@@ -15,6 +15,7 @@ import com.example.elena.ourandroidapp.model.Contact;
 import com.example.elena.ourandroidapp.model.Poll;
 import com.example.elena.ourandroidapp.model.PollNotAnonymous;
 import com.example.elena.ourandroidapp.services.GlobalContainer;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
 
@@ -57,7 +58,15 @@ public class Option_Adapter extends ArrayAdapter<Poll.Option> {
             for (String voted_participant : ((PollNotAnonymous.OptionNotAnonymous) option).getVoted()){
                 Contact c = GlobalContainer.getContacts().get(voted_participant);
                 if(c!=null) {
-                    str += GlobalContainer.getContacts().get(voted_participant).getName() + ", ";
+                    FirebaseAuth auth = FirebaseAuth.getInstance();
+                    String mPhoneNumber = auth.getCurrentUser().getPhoneNumber();
+                    mPhoneNumber=mPhoneNumber.replaceAll("\\s+","");
+                    if(c.getPhoneNumber().equals(mPhoneNumber)){
+                        str += "you, ";
+                    }
+                    else {
+                        str += GlobalContainer.getContacts().get(voted_participant).getName() + ", ";
+                    }
                 } else {
                     str+= voted_participant + ", ";
                 }

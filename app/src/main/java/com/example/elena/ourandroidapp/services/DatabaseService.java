@@ -512,10 +512,17 @@ public DatabaseReference getRefWithSingleEventListener(Poll poll, final Callback
         repository.truncateContactsTable();
         int badCount =0;
         for(Contact c : contactsToCheck.values()) {
+            /*
+            if(c.getName().equals("Elena Mobile Apps")){
+                String str = c.getPhoneNumber();
+                System.out.println(c.getName());
+            }*/
+            c.setPhoneNumber(c.getPhoneNumber().replaceAll("\\s+",""));
             String phone = c.getPhoneNumber();
             if (phone.contains(".") || phone.contains("$") || phone.contains("[") || phone.contains("]") || phone.contains("#") || phone.contains("\\")) {
                 badCount++;
             }
+
         }
         GlobalContainer.emptyContacts();
         DatabaseReference rootRef = mDatabase.child("users");
@@ -530,6 +537,12 @@ public DatabaseReference getRefWithSingleEventListener(Poll poll, final Callback
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
                         counter.add(1);
+                        /*
+                        if(finalEntry.getValue().getName().equals("Elena Mobile Apps")){
+                            String str = finalEntry.getValue().getPhoneNumber();
+                            System.out.println(finalEntry.getValue().getName());
+                        }
+                        */
                         if (snapshot.hasChild(finalEntry.getValue().getPhoneNumber())) {
                             // run some code
                             HashMap<String, Contact> contacts = GlobalContainer.getContacts();

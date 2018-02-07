@@ -67,16 +67,6 @@
         </activity>
 
         <activity
-            android:name=".activities.TestActivity"
-            android:label="@string/title_activity_test"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:parentActivityName=".activities.MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MainActivity" />
-        </activity>
-
-        <activity
             android:name=".activities.NewPollActivity"
             android:label="@string/title_activity_new_poll"
             android:theme="@style/AppTheme.NoActionBar"

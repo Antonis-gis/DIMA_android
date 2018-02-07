@@ -26,11 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-/*
-        <activity android:name=".LoginActivity"></activity>
-        <activity android:name=".LaunchActivity"
-            android:theme="@android:style/Theme.NoDisplay"></activity>
- */
+
 public class LoginActivity extends AppCompatActivity {
     DatabaseService.Callback callbackNP = new DatabaseService.Callback() {//we need somehow find right poll and update its view
         @Override

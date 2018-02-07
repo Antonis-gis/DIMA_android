@@ -3,6 +3,7 @@ package com.example.elena.ourandroidapp.services;
 import android.app.Service;
 import android.util.Log;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -26,13 +27,17 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
         // Instance ID token to your app server.
         sendRegistrationToServer(refreshedToken);
     }
+
     private void sendRegistrationToServer(String token) {
         // TODO: Implement this method to send token to your app server.
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("message");
+        //DatabaseReference myRef = database.getReference("message");
 
-        myRef.setValue("Hello, World!");
+        //myRef.setValue("Hello, World!");
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        String mPhoneNumber = auth.getCurrentUser().getPhoneNumber();
         DatabaseService mDatabaseService = DatabaseService.getInstance();
-        mDatabaseService.writeTokenData("1234567890", token);
+        mDatabaseService.writeTokenData(mPhoneNumber, token);
     }
+
 }

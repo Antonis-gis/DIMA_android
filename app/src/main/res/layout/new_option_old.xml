@@ -16,7 +16,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="8dp"
         android:paddingLeft="8dp"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/add_btn"
         app:layout_constraintStart_toStartOf="parent"
@@ -31,7 +31,9 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:fontFamily="sans-serif"
         android:text="Delete"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/add_btn"
         app:layout_constraintTop_toTopOf="parent" />
@@ -41,13 +43,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginTop="8dp"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:layout_toLeftOf="@id/delete_btn"
+        android:fontFamily="sans-serif"
         android:text="Add"
+        android:textSize="14sp"
         app:layout_constraintStart_toEndOf="@+id/new_option_string"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="100dp" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 

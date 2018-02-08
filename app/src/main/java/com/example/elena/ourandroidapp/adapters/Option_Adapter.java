@@ -1,6 +1,5 @@
 package com.example.elena.ourandroidapp.adapters;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.constraint.ConstraintLayout;
 import android.view.LayoutInflater;
@@ -8,11 +7,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.elena.ourandroidapp.ApplicationContextProvider;
+import com.example.elena.ourandroidapp.activities.ItemActivity;
+import com.example.elena.ourandroidapp.services.ApplicationContextProvider;
 import com.example.elena.ourandroidapp.R;
 import com.example.elena.ourandroidapp.data.PollSQLiteRepository;
 import com.example.elena.ourandroidapp.model.Contact;
@@ -32,11 +31,13 @@ public class Option_Adapter extends ArrayAdapter<Poll.Option> {
     int numberOfParticipants;
     int voted;
     String poll_id;
+    //ItemActivity.optionsProvider op;
     public Option_Adapter(Context context, List<Poll.Option> objects, String poll_id) {
         super(context, 0, objects);
         this.numberOfParticipants = GlobalContainer.getPolls().get(poll_id).getParticipants().size();
         this.voted=GlobalContainer.getPolls().get(poll_id).checkIfVoted();
         this.poll_id=poll_id;
+        //this.op= op;
     }
     @Override
     public View getView(final int position, View convertView, final ViewGroup viewGroup){
@@ -61,6 +62,7 @@ public class Option_Adapter extends ArrayAdapter<Poll.Option> {
         }
         int optionPopularity = (int) (((float)option.getVotesCount()/numberOfParticipants)*100);
         viewHolder.mProgress.setProgress(optionPopularity);
+        viewHolder.votesNumber.setText(Integer.toString(option.getVotesCount()));
         if(option instanceof PollNotAnonymous.OptionNotAnonymous){
             viewHolder.showBtn.setVisibility(View.VISIBLE);
             String str="";
@@ -114,12 +116,16 @@ public class Option_Adapter extends ArrayAdapter<Poll.Option> {
                         FirebaseAuth auth = FirebaseAuth.getInstance();
                         String mPhoneNumber = auth.getCurrentUser().getPhoneNumber();
                         ((PollNotAnonymous)GlobalContainer.getPolls().get(poll_id)).addVoted(str, mPhoneNumber);
+                        //op.getOptions().addVoted(str, mPhoneNumber);
                     }
 
                     GlobalContainer.getPolls().put(GlobalContainer.getPolls().get(poll_id).getId(), GlobalContainer.getPolls().get(poll_id));
                     PollSQLiteRepository repository = new PollSQLiteRepository(ApplicationContextProvider.getContext());
                     repository.deletePoll(GlobalContainer.getPolls().get(poll_id).getId());
                     repository.add(GlobalContainer.getPolls().get(poll_id));
+                    //op.getOptions().clear();
+                    //op.getOptions().addAll(GlobalContainer.getPolls().get(poll_id).getOptions().values());
+
                     notifyDataSetChanged();
                 }
             });
@@ -150,6 +156,7 @@ public class Option_Adapter extends ArrayAdapter<Poll.Option> {
         TextView votedText;
         Button showBtn;
         Button voteBtn;
+        TextView votesNumber;
 
         public  NewOptionViewHolder(View view, Option_Adapter newOptionAdapter){
             optionText = (TextView) view.
@@ -158,7 +165,8 @@ public class Option_Adapter extends ArrayAdapter<Poll.Option> {
             votedText = view.findViewById(R.id.list_of_voted);
             showBtn = view.findViewById(R.id.show_vote_participants);
             voteBtn = view.findViewById(R.id.vote_btn);
-
+            votesNumber = view.findViewById(R.id.votes_number);
+         //   mProgress.getIndeterminateDrawable().setColorFilter(0x3F51B5, android.graphics.PorterDuff.Mode.MULTIPLY);
 
         }
 

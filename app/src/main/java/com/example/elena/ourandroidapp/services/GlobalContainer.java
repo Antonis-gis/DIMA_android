@@ -2,10 +2,8 @@ package com.example.elena.ourandroidapp.services;
 
 import android.util.Pair;
 
-import com.example.elena.ourandroidapp.ApplicationContextProvider;
 import com.example.elena.ourandroidapp.activities.ChooseContactsActivity;
 import com.example.elena.ourandroidapp.data.PollSQLiteRepository;
-import com.example.elena.ourandroidapp.model.Binding;
 import com.example.elena.ourandroidapp.model.Contact;
 import com.example.elena.ourandroidapp.model.Poll;
 import com.google.firebase.database.DatabaseReference;

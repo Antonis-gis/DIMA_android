@@ -2,31 +2,23 @@ package com.example.elena.ourandroidapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.example.elena.ourandroidapp.ApplicationContextProvider;
 import com.example.elena.ourandroidapp.R;
-import com.example.elena.ourandroidapp.adapters.NewOptionAdapter;
 import com.example.elena.ourandroidapp.adapters.Option_Adapter;
-import com.example.elena.ourandroidapp.data.PollSQLiteRepository;
 import com.example.elena.ourandroidapp.model.Binding;
 import com.example.elena.ourandroidapp.model.Contact;
 import com.example.elena.ourandroidapp.model.Poll;
-import com.example.elena.ourandroidapp.model.PollNotAnonymous;
 import com.example.elena.ourandroidapp.services.DatabaseService;
 import com.example.elena.ourandroidapp.services.GlobalContainer;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +27,7 @@ public class ItemActivity extends AppCompatActivity {
     Binding b;
     ListView optionsListView;
     String poll_id;
-    final ArrayList<Poll.Option> options = new ArrayList<>();
+    final static ArrayList<Poll.Option> options = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,17 +53,6 @@ public class ItemActivity extends AppCompatActivity {
         final Option_Adapter optionsArrayAdapter = new Option_Adapter(this, options, poll.getId());
         optionsListView = findViewById(R.id.options_list);
         optionsListView.setAdapter(optionsArrayAdapter);
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mPollService.sendVote(id, GlobalContainer.getPolls().get(id).getOptions().get("try1"));
-
-                System.err.println(GlobalContainer.getPolls().get(id).checkIfVoted());
-                //optionsArrayAdapter.notifyDataSetChanged();
-
-            }
-        });
         /*
         optionsListView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
@@ -154,13 +135,29 @@ optionsArrayAdapter.notifyDataSetChanged();
         };
 
 
-        TextView titleView = findViewById(R.id.question);
-        titleView.setText(poll.getQuestion());
-        TextView questionView = findViewById(R.id.participants);
+        TextView questionView = findViewById(R.id.question);
+        questionView.setText(poll.getQuestion());
+        final Button showBtn = findViewById(R.id.hide_participants);
+        showBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TextView participantsViewh = findViewById(R.id.participants);
+                if(participantsViewh.getVisibility()==View.VISIBLE) {
+                    participantsViewh.setVisibility(View.INVISIBLE);
+                    showBtn.setText("+ Participants");
+                } else{
+                    participantsViewh.setVisibility(View.VISIBLE);
+                    showBtn.setText("- Participants");
+                }
+            }
+        });
+
+        TextView participantsView = findViewById(R.id.participants);
         String str ="";
         for (String participant : poll.getParticipants()){
 
                 Contact c = GlobalContainer.getContacts().get(participant);
+                HashMap<String, Contact> cc = GlobalContainer.getContacts();
                 if(c!=null) {
 
                     str += GlobalContainer.getContacts().get(participant).getName() + ", ";
@@ -177,7 +174,10 @@ optionsArrayAdapter.notifyDataSetChanged();
                     }
                 }
             }
-        questionView.setText(poll.getQuestion());
+        if(str.length()>2) {
+            str = str.substring(0, str.length() - 2);
+        }
+        participantsView.setText(str);
 
         b = mPollService.getRefWithListener(GlobalContainer.getPolls().get(id), callback, true);
 
@@ -194,6 +194,12 @@ optionsArrayAdapter.notifyDataSetChanged();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public static class optionsProvider{
+        public ArrayList<Poll.Option> getOptions(){
+            return options;
+        }
     }
 
 

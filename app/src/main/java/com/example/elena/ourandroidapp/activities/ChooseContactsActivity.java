@@ -1,6 +1,7 @@
 package com.example.elena.ourandroidapp.activities;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -18,6 +19,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -55,6 +57,7 @@ public class ChooseContactsActivity extends AppCompatActivity {
         Intent intent = getIntent();
         final String id = intent.getStringExtra("pollId");
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary)));
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -150,15 +153,16 @@ public class ChooseContactsActivity extends AppCompatActivity {
                             }
                         */
 
-                            CheckBox cb = view.findViewById(R.id.checkBox);
-                            if(cb.isChecked()){
-                                cb.setChecked(false);
+
+                        ImageView cb = view.findViewById(R.id.changedPic);
+                            if(contacts.get(i).getChoosen()){
+                                cb.setVisibility(View.GONE);
                                 contacts.get(i).setChoosen(false);
                             }else{
-                                cb.setChecked(true);
                                 contacts.get(i).setChoosen(true);
-
+                                cb.setVisibility(View.VISIBLE);
                             }
+
 
                         //String phoneNumber = contacts.get(i).second.getPhoneNumber();
                         //Boolean newBool = !contacts.get(i).first;

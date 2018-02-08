@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.ColorStateList;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
@@ -16,7 +17,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 
-import com.example.elena.ourandroidapp.ApplicationContextProvider;
+import com.example.elena.ourandroidapp.services.ApplicationContextProvider;
 import com.example.elena.ourandroidapp.R;
 import com.example.elena.ourandroidapp.adapters.PollArrayAdapter;
 import com.example.elena.ourandroidapp.data.PollSQLiteRepository;
@@ -25,7 +26,6 @@ import com.example.elena.ourandroidapp.model.Poll;
 import com.example.elena.ourandroidapp.services.DatabaseService;
 import com.example.elena.ourandroidapp.services.GlobalContainer;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -131,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
         receipients.add("1234567890");
         FloatingActionButton fab = (FloatingActionButton)
                 findViewById(R.id.fab);
+        fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary)));
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

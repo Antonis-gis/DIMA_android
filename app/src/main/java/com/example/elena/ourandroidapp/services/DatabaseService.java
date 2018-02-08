@@ -1,13 +1,7 @@
 package com.example.elena.ourandroidapp.services;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
-import android.telephony.TelephonyManager;
-import android.util.Log;
 
-import com.example.elena.ourandroidapp.ApplicationContextProvider;
 import com.example.elena.ourandroidapp.data.PollSQLiteRepository;
 import com.example.elena.ourandroidapp.model.Binding;
 import com.example.elena.ourandroidapp.model.Contact;
@@ -27,7 +21,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -185,7 +178,8 @@ public class DatabaseService {
                     GlobalContainer.getPolls().put(poll.getId(), newPoll);//this is so we want call onDataChange twice
                     HashMap<String, Poll> polls4= GlobalContainer.getPolls();
                     if(newVote) {
-                        newPoll.setChanged(1);//what if we are in itemactivity?
+                        newPoll.setChanged(1);
+                    }//what if we are in itemactivity?
                         if(newVote||notifyOnOwnVote) {
                             callback.onLoad(newPoll.getId());
                         }
@@ -194,7 +188,7 @@ public class DatabaseService {
 
                 }
 
-            }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 callback.onFailure();

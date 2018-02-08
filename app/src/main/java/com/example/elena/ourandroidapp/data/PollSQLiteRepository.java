@@ -5,18 +5,16 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.example.elena.ourandroidapp.ApplicationContextProvider;
+import com.example.elena.ourandroidapp.services.ApplicationContextProvider;
 import com.example.elena.ourandroidapp.model.Contact;
 import com.example.elena.ourandroidapp.model.Poll;
 import com.example.elena.ourandroidapp.model.Poll.*;
 import com.example.elena.ourandroidapp.model.PollNotAnonymous;
 import com.example.elena.ourandroidapp.model.PollNotAnonymous.*;
-import com.example.elena.ourandroidapp.services.GlobalContainer;
 
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 
 import static com.example.elena.ourandroidapp.data.PollDBContract.getWritableDatabase;
 import static com.example.elena.ourandroidapp.data.PollDBContract.*;
@@ -239,8 +237,8 @@ public class PollSQLiteRepository {
         ContactCursor cc = findContacts();
         while (cc.moveToNext()) {
             Contact c = new Contact(cc.getName(), cc.getNumber());
-            String name = cc.getName();
-            contacts.put(name, c);
+            String phone = cc.getNumber();
+            contacts.put(phone, c);
         }
         cc.close();
         return contacts;

@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.elena.ourandroidapp.R;
@@ -34,6 +35,8 @@ public class ContactArrayAdapter extends ArrayAdapter<ChooseContactsActivity.Boo
         ///Pair<Boolean, Contact> pair = getItem(position);
         //final Contact contact = pair.second;
 final Contact contact=cb.getContact();
+
+
         if (convertView == null){
             LayoutInflater layoutInflater = (LayoutInflater) getContext().
                     getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -45,9 +48,19 @@ final Contact contact=cb.getContact();
 
          final ContactViewHolder viewHolder = ( ContactViewHolder) convertView.getTag();
 
+            ///viewHolder.cb.setChecked(cb.getChoosen());
+
+
         //viewHolder.name.setText(contact.getName());
         viewHolder.cName.setText(contact.getName());
+        if(cb.getChoosen()){
+            viewHolder.cp.setVisibility(View.VISIBLE);
+        }else{
+
+            viewHolder.cp.setVisibility(View.GONE);
+        }
 final View finalView=convertView;
+/*
         viewHolder.cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
             @Override
@@ -61,21 +74,24 @@ final View finalView=convertView;
                     cb.setChoosen(false);
 
                 }
+
             }
         });
+        */
 
 
         return convertView;
     }
     static class ContactViewHolder {
-CheckBox cb;
+ImageView cp;
 
         TextView cName;
 
         public  ContactViewHolder(View view){
             cName = (TextView) view.
                     findViewById(R.id.contact_name);
-            cb =  view.findViewById(R.id.checkBox);
+            cp = view.findViewById(R.id.changedPic);
+            //cb =  view.findViewById(R.id.checkBox);
         }
 
     }

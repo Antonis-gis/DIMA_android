@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
                 };
                 FirebaseAuth auth = FirebaseAuth.getInstance();
                 String mPhoneNumber = auth.getCurrentUser().getPhoneNumber();
-                mIdsService.retrieveListOfUserPolls(mPhoneNumber, idsCallback);
+                //mIdsService.retrieveListOfUserPolls(mPhoneNumber, idsCallback);
 
                 // TODO: Do something with the value of isNew.
             }

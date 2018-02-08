@@ -103,7 +103,8 @@ public class Poll implements java.io.Serializable{
     }
 
     public void incrementVotesCount() {
-        this.votesCount++;
+
+            this.votesCount++;
     }
 
         public int getVotesCount() {

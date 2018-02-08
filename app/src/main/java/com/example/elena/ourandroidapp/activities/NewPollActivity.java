@@ -33,7 +33,7 @@ import java.util.Random;
 import java.util.UUID;
 
 public class NewPollActivity extends AppCompatActivity {
-    ListView optionsListView;
+    static ListView optionsListView;
     public static final Random RANDOM = new Random();
     public static final String BACKEND_ACTION_SUBSCRIBE = "SUBSCRIBE";
     static int generator=0;
@@ -71,7 +71,8 @@ public class NewPollActivity extends AppCompatActivity {
                 //String title = titleET.getText();
 
                 EditText questionET = findViewById(R.id.new_question);
-                if(options.contains("")||titleET.getText().toString().equals("")||questionET.getText().toString().equals("")){
+                questionET.requestFocus(); //nessesary so last onFocusChangeListener for newoptionView is called
+                if(titleET.getText().toString().equals("")||questionET.getText().toString().equals("")){
                     Toast.makeText(getApplicationContext(), "No empty fields allowed",
                             Toast.LENGTH_SHORT).show();
                 }else {
@@ -82,17 +83,27 @@ public class NewPollActivity extends AppCompatActivity {
                     } else {
                         newPoll = new Poll(titleET.getText().toString(), questionET.getText().toString(), pollId);
                     }
+boolean optionsCorrect = true;
                     for (OptionHolder option : options) {
-                        newPoll.addOption(option.getText());
+
+                           newPoll.addOption(option.getText());
+                           if(option.getText().equals("")){
+                               optionsCorrect=false;
+                           }
                     }
-                    HashMap<String, Poll> polls = GlobalContainer.getPolls();
-                    Intent intent = new Intent(NewPollActivity.this, ChooseContactsActivity.class);
-                    intent.putExtra("pollId", newPoll.getId());
-                    Bundle b = new Bundle();
-                    b.putSerializable("poll", newPoll);
-                    intent.putExtras(b);
-                    intent.putExtra("type", Integer.toString(newPoll.getType()));
-                    startActivity(intent);
+                    if(optionsCorrect){
+                        HashMap<String, Poll> polls = GlobalContainer.getPolls();
+                        Intent intent = new Intent(NewPollActivity.this, ChooseContactsActivity.class);
+                        intent.putExtra("pollId", newPoll.getId());
+                        Bundle b = new Bundle();
+                        b.putSerializable("poll", newPoll);
+                        intent.putExtras(b);
+                        intent.putExtra("type", Integer.toString(newPoll.getType()));
+                        startActivity(intent);
+                    } else{
+                        Toast.makeText(getApplicationContext(), "No empty fields allowed",
+                                Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
@@ -104,7 +115,9 @@ public class NewPollActivity extends AppCompatActivity {
                 //Toast.makeText(getApplicationContext(), "Lost the focus", Toast.LENGTH_LONG).show();
 
              String str = "";
-             options.add(new OptionHolder(""));
+             if(options.size()==0) {
+                 options.add(new OptionHolder(""));
+             }
                 optionsArrayAdapter.notifyDataSetChanged();
 /*
                         //optionsListView.invalidateViews();
@@ -220,6 +233,7 @@ public class NewPollActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
+                options.clear();
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
         }
@@ -236,6 +250,7 @@ public class NewPollActivity extends AppCompatActivity {
 
         }
         public String getText(){
+
             return text;
         }
 

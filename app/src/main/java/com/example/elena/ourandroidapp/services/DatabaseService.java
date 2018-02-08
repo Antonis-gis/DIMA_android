@@ -183,7 +183,7 @@ public class DatabaseService {
                     repository.deletePoll(poll.getId());
                     repository.add(newPoll);
                     GlobalContainer.getPolls().put(poll.getId(), newPoll);//this is so we want call onDataChange twice
-
+                    HashMap<String, Poll> polls4= GlobalContainer.getPolls();
                     if(newVote) {
                         newPoll.setChanged(1);//what if we are in itemactivity?
                         if(newVote||notifyOnOwnVote) {
@@ -467,6 +467,7 @@ public DatabaseReference getRefWithSingleEventListener(Poll poll, final Callback
         });
 
     }
+
 
     public void retrievePollToGlobalContainer(String poll_id, final Callback callback){ ///this is to get new Poll from Database (when we receive message that we became participant of new poll)
         //addPollIdToUsersPollsIdList(poll_id);

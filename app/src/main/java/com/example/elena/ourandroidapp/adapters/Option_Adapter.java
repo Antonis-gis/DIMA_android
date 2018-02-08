@@ -1,6 +1,8 @@
 package com.example.elena.ourandroidapp.adapters;
 
+import android.app.Activity;
 import android.content.Context;
+import android.support.constraint.ConstraintLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -95,13 +97,15 @@ public class Option_Adapter extends ArrayAdapter<Poll.Option> {
                 @Override
                 public void onClick(View v) {
                     //do something
+                    /*
                     for (int y = 0; y < viewGroup.getChildCount(); y++) {
                         viewGroup.getChildAt(y).findViewById(R.id.vote_btn).setVisibility(View.GONE);
                     }
+                    */
                     String str = ((TextView) viewHolder.optionText).getText().toString();
                     final DatabaseService mPollService = DatabaseService.getInstance();
                     mPollService.sendVote(poll_id, GlobalContainer.getPolls().get(poll_id).getOptions().get(str));
-                    TextView alreadyVotedText = viewGroup.findViewById(R.id.already_voted_string);
+                    TextView alreadyVotedText = ((ConstraintLayout)viewGroup.getParent()).findViewById(R.id.already_voted_string);
                     alreadyVotedText.setVisibility(TextView.VISIBLE);
                     GlobalContainer.getPolls().get(poll_id).setVoted();
                     if(GlobalContainer.getPolls().get(poll_id).getType()==1){

@@ -36,6 +36,8 @@ public class NewPollActivity extends AppCompatActivity {
     ListView optionsListView;
     public static final Random RANDOM = new Random();
     public static final String BACKEND_ACTION_SUBSCRIBE = "SUBSCRIBE";
+    static int generator=0;
+    final static List<OptionHolder> options=new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +51,7 @@ public class NewPollActivity extends AppCompatActivity {
         //receipients.add("1234567890");
         Poll newPoll = new Poll();
         final String newPollId = newPoll.getId();
-        final List<String> options=new ArrayList<>();
+
         final NewOptionAdapter optionsArrayAdapter = new NewOptionAdapter(this, options);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -58,10 +60,13 @@ public class NewPollActivity extends AppCompatActivity {
 
 
                 String pollId = UUID.randomUUID().toString().replaceAll("-", "");
+                /*
                 int idx = options.size()-1;
                 final EditText editView = (EditText) optionsListView.getChildAt(idx).findViewById(R.id.new_option_string);
                 options.remove(idx);
                 options.add(idx, editView.getText().toString());
+                */
+
                 EditText titleET = findViewById(R.id.new_title);
                 //String title = titleET.getText();
 
@@ -77,8 +82,8 @@ public class NewPollActivity extends AppCompatActivity {
                     } else {
                         newPoll = new Poll(titleET.getText().toString(), questionET.getText().toString(), pollId);
                     }
-                    for (String option : options) {
-                        newPoll.addOption(option);
+                    for (OptionHolder option : options) {
+                        newPoll.addOption(option.getText());
                     }
                     HashMap<String, Poll> polls = GlobalContainer.getPolls();
                     Intent intent = new Intent(NewPollActivity.this, ChooseContactsActivity.class);
@@ -99,10 +104,12 @@ public class NewPollActivity extends AppCompatActivity {
                 //Toast.makeText(getApplicationContext(), "Lost the focus", Toast.LENGTH_LONG).show();
 
              String str = "";
-             options.add(str);
-
+             options.add(new OptionHolder(""));
+                optionsArrayAdapter.notifyDataSetChanged();
+/*
                         //optionsListView.invalidateViews();
                         optionsArrayAdapter.notifyDataSetChanged();
+
                         final int idx = options.size()-2;
                         final EditText editView = (EditText) optionsListView.getChildAt(idx).findViewById(R.id.new_option_string);
                         editView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -117,6 +124,7 @@ public class NewPollActivity extends AppCompatActivity {
                                     optionsArrayAdapter.notifyDataSetChanged();
 
                                 }
+                                */
                             }
                         });
 /*
@@ -136,12 +144,14 @@ public class NewPollActivity extends AppCompatActivity {
 
                             }
                         });
-*/
+
                     }
                 });
+*/
+
         optionsListView = findViewById(R.id.new_options_list);
         optionsListView.setAdapter(optionsArrayAdapter);
-
+        /*
         optionsListView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
@@ -169,10 +179,9 @@ public class NewPollActivity extends AppCompatActivity {
         });
 
 
-
-        String str ="";
-        options.add(str);
-
+*/
+        options.add(new OptionHolder(""));
+/*
         for (int i=0; i<optionsListView.getChildCount(); i++) {
             final int idx = i;
             final EditText editView = (EditText) optionsListView.getChildAt(i).findViewById(R.id.new_option_string);
@@ -201,7 +210,7 @@ public class NewPollActivity extends AppCompatActivity {
 
         }
 
-
+*/
 
 
     }
@@ -215,6 +224,32 @@ public class NewPollActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public static class OptionHolder{
+        String text;
+        int id;
+        public OptionHolder(String text){
+            this.text=text;
+            id=generator;
+            generator++;
+
+        }
+        public String getText(){
+            return text;
+        }
+
+        public void setText(String new_text){
+            text=new_text;
+        }
+        public int getId(){
+            return id;
+        }
+
+        public List<OptionHolder> returnOptions(){
+            return options;
+        }
+
     }
 
 }

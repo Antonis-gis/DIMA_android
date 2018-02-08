@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.elena.ourandroidapp.R;
+import com.example.elena.ourandroidapp.activities.NewPollActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,16 +21,17 @@ import java.util.List;
  * Created by laura on 3/02/18.
  */
 
-public class NewOptionAdapter extends ArrayAdapter<String> {
+public class NewOptionAdapter extends ArrayAdapter<NewPollActivity.OptionHolder> {
     //private ArrayList<String> list = new ArrayList<String>();
-    public NewOptionAdapter(Context context, List<String> objects) {
+    public NewOptionAdapter(Context context, List<NewPollActivity.OptionHolder> objects) {
         super(context, 0, objects);
         //this.list = new ArrayList<String>(objects);
 
     }
     @Override
     public View getView(final int position, View convertView, ViewGroup viewGroup){
-        String option = getItem(position);
+        final NewPollActivity.OptionHolder oh = getItem(position);
+        String option = getItem(position).getText();
 
 
         if (convertView == null){
@@ -71,9 +73,35 @@ public class NewOptionAdapter extends ArrayAdapter<String> {
             }
         });
         */
+viewHolder.optionText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+    @Override
+    public void onFocusChange(View v, boolean hasFocus) {
+        if (hasFocus) {
 
+        } else {
+            oh.setText(viewHolder.optionText.getText().toString());
+
+
+        }
+    }
+
+});
         Button delBtn = (Button)convertView.findViewById(R.id.delete_btn);
+        delBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                //do something
+                for(NewPollActivity.OptionHolder searched : oh.returnOptions()){
+                    if(searched.getId()==oh.getId()){
+                        oh.returnOptions().remove(searched);
+                        break;
+                    }
+                }
+                notifyDataSetChanged();
 
+
+            }
+        });
 
 
         return convertView;
